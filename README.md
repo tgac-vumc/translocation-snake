@@ -16,7 +16,7 @@ The translocation detection pipeline is designed to increase the sensitivity and
 
 **input file creation**
 
-Pipeline is tested on paired-end ilumina data and processed as follow:
+Pipeline is tested on paired-end ilumina data processed as follow:
 - Adapters are removed with SeqPurge v0.1-104 (-min_len 20)
 - DNA is aligned with bwa_mem v0.7.12-r1039 against reference hg19. (-M -R <readgroupinfo> )
 - Realignment around indels is performed with ABRA v0.96
@@ -28,7 +28,7 @@ Pipeline is tested on paired-end ilumina data and processed as follow:
 
 bamfiles need to be of the following make up:
 
-stored in the folder bam
+stored in the folder bam located at the same level as the git folder (translocation-snake)
   {name}_coordsorted_nochr.bam
           and
       {name}_coordsorted.bam
@@ -36,7 +36,4 @@ stored in the folder bam
 Gridss, Novobreak and wham are performed by snakemake
 
 [source activate translocation-snake]
-[snakemake -s translocation.snakefile]
-
-
- 
+[snakemake ]
