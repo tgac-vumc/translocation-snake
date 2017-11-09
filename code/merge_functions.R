@@ -1,0 +1,111 @@
+#!/usr/bin/env R
+#########################################################
+
+#Author: Tjitske de Vries
+#date:   08-11-2017
+#Name:   merge_functions.R
+
+#this script contain the functions used for filtering and merging
+# the output of Gridss, Breakmer, Wham and novobreak.
+
+ #########################################################
+
+ #########################################################
+ #   function to remove lines without multiple matches   #
+ #########################################################
+ #Remove hits which are found with one tool only.
+ removeSingles<-function(df){
+ 	keeplist<-c()
+ 	for (i in 1:nrow(df)){
+ 		range=max(0,i-50):min(i+50,nrow(df))
+
+ 		TF<-df[i,"CHROM"]== df[range,"CHROM"] &  abs(df[i,"POS"] - df[range,"POS"])< 10 &  df[i,"CHROM2"]== df[range,"CHROM2"] &  abs(df[i,"POS2"] - df[range,"POS2"])< 10 & df[i,"TOOL"] != df[range,"TOOL"]
+
+ 		keeplist<-c(keeplist,(sum(TF)>0))
+ 	}
+ 	return(keeplist)
+ }
+
+ #count number of events, an event is a single structural variant, a reciprocal translocation can consist of one or two events depending on the distance of the two breakpoints from each other. within 10 bp is called 1 event.
+ Event<-function(df){
+
+ 	event<-1
+ 	if(nrow(df)>1){
+ 		for(i in 1:(nrow(df)-1)){
+ 			if (df[i,"CHROM"]== df[i+1,"CHROM"] &  abs(df[i,"POS"] - df[i+1,"POS"])< 10 &  df[i,"CHROM2"]== df[i+1,"CHROM2"] &  abs(df[i,"POS2"] - df[i+1,"POS2"])< 10){
+ 				df$EVENT[i]<-event}
+ 	else{
+ 		df$EVENT[i]<-event
+ 		event<-event+1}
+ 	}
+ 	df$EVENT[nrow(df)]<-event
+ 	return(df$EVENT)
+ 	}else{df$EVENT[1]<-event
+ }}
+
+ # Annotate if there is a hign level of evidence for a translocation based on discordant and split reads.
+ Evidence<-function(df){
+ 	highSVevidence=snakemake@config[["filters"]][["highSVevidence"]]
+ 	df$EVIDENCE_LEVEL[df$SR >= highSVevidence & df$SR2 >= highSVevidence & (df$DR >=highSVevidence | is.na(df$DR)) &  (df$DR2 >=highSVevidence | is.na(df$DR2))]<-"HIGH"
+ 	df$EVIDENCE_LEVEL[!(df$SR >= highSVevidence & df$SR2 >= highSVevidence & (df$DR >=highSVevidence | is.na(df$DR)) &  (df$DR2 >=highSVevidence | is.na(df$DR2)))]<-"LOW"
+
+ 	return(df)
+ }
+
+
+ #########################################################
+ #               Filter functions for the 4 tools        #
+ #########################################################
+ # Remove breakmer hits not meeting criteria
+ filter_breakmer<-function(df, dr , sr ){
+
+ 	df_filt<-df[ df$SR >= sr & df$SR2 >= sr & (df$DR >= dr | is.na(df$DR)) & (df$DR2 >= dr | is.na(df$DR2)),]
+ 	return(df_filt)
+ }
+
+ # Remove wham hits not meeting criteria
+ filter_wham<-function(df, sr ){
+
+ 	sumDR_SR<-rowSums(df[c("SR","SR2","DR","DR2")], na.rm = T)
+ 	df_filt<-df[sumDR_SR>= 2*sr,]
+ 	return(df_filt)
+ }
+
+ # Remove gridss hits not meeting criteria
+ filter_gridss<-function(df, gridssscore ){
+
+ 	df_filt<-df[df$QUAL >=gridssscore ,]
+ 	return(df_filt)
+ }
+
+ #Remove novobreak hits not meeting criteria
+ filter_novobreak<-function(df,novoscore){
+
+ 	df_filt<-df[df$QUAL >= novoscore ,]
+ 	return(df_filt)
+ }
+
+ #Remove hits of which one of the breakpoints is located in blacklisted region.
+ Blacklist<-function(df){
+ 	a<-c()
+ 	for(i in 1:nrow(df)){
+ 		a<-c(a,sum((df[i,]$CHROM==blacklist$V1 & df[i,]$POS >= blacklist$V2 & df[i,]$POS <= blacklist$V3)|(df[i,]$CHROM2==blacklist$V1 & df[i,]$POS2 >= blacklist$V2 & df[i,]$POS2 <= blacklist$V3)))
+ 	}
+ 	return(a==0)
+ }
+
+ #function to find out if event is translocation or High evidence other event
+ otherSV<-function(df){
+
+ 	!(df$SVTYPE == "TRL" | df$EVIDENCE_LEVEL == "HIGH")
+
+ }
+
+ #function to keep only one line per event with highest level of evidence
+ Summarize<-function(df){
+ 	df<-arrange(df,EVENT, EVIDENCE_LEVEL,plyr::desc(DR),plyr::desc(DR2),plyr::desc(SR),plyr::desc(SR2))
+ 	occurence<-count(df$EVENT)
+ 	df$OCCURENCE<-occurence[df$EVENT,"freq"]
+ 	df$TPorFP<-"TP" #this column is used to exclude rows from circlize plot if they are marked as FP
+ 	summarydf<-df[!duplicated(df$EVENT),]
+ }

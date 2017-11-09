@@ -1,0 +1,30 @@
+all:
+    THREADS: 4
+    REF_CHR: /net/nfs/PAT/home/tjitske/files/ref/incl_chr/hg19.fa
+    REF_NOCHR: /net/nfs/PAT/home/tjitske/files/ref/excl_chr/hg19_refgen_exclchr.fa
+    Annotationfile: code/annotation_new_BCNHL-v2.bed
+    targets: code/BCNHLv2_primary_coord.bed
+
+filters:
+    splitread: 4         #number of mininimal amount of split read evidence
+    discread: 3          #number of minimal amount of discordant read evidence
+    novoscore: 4         #minimal novobreak QUAL score
+    gridssscore: 450     #minimal gridss QUAL score
+    highSVevidence: 15   #minimal amount of split reads and discordant reads required for structural variants to be called High evidence
+    blacklist: code/blacklist.bed         #blacklist in bedfile format
+
+gridss:
+  GRIDSS_JAR: /net/nfs/PAT/home/tjitske/GRIDSS/gridss-1.4.2-jar-with-dependencies.jar
+
+wham:
+  WHAM: /net/nfs/PAT/home/tjitske/WHAM/wham/bin/wham
+  CLASSIFY: /net/nfs/PAT/home/tjitske/WHAM/wham/utils/classify_WHAM_vcf.py
+  TRAIN: /net/nfs/PAT/home/tjitske/WHAM/wham/data/WHAM_training_data.txt
+  MAPQUAL: 10
+  BASEQUAL: 5
+
+novobreak:
+  NOVOBREAK: /net/nfs/PAT/home/tjitske/novobreak/nb_distribution/run_novoBreak.sh
+  EXE_DIR: /net/nfs/PAT/home/tjitske/novobreak/nb_distribution
+  NORMAL: /net/nfs/PAT/analysis/MPS-310/Blood_combined_bam/combined_healthy_blood_nochr.bam
+  HEADER: /net/nfs/PAT/home/tjitske/novobreak/nb_distribution/header.txt
