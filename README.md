@@ -1,9 +1,12 @@
 # Translocation detection pipeline by next generation sequencing
-## a combined approach of BreaKmer, Gridss, Wham and novoBreak.
+## A combined approach of BreaKmer, Gridss, Wham and novoBreak.
+
+##### Work in progress :)
+
 
 The translocation detection pipeline is designed to increase the sensitivity and specificity of translocation detection by using a combined approach of multiple publically available bioinformatic tools. This is especially important for the analysis of DNA derived from formalin fixed paraffin embedded (FFPE) material, because this material is in general of less quality compared to fresh material and contain more noise. The analysis is
 
-**requirements**
+**Requirements**
 - Gridss v1.4.2  https://github.com/PapenfussLab/gridss/releases
 - WHAM https://github.com/zeeev/wham
 - BreaKmer v0.0.4 https://github.com/ryanabo/BreaKmer
@@ -14,7 +17,7 @@ The translocation detection pipeline is designed to increase the sensitivity and
     [conda env create --name translocation-snake --file environment.yaml]
 
 
-**input file creation**
+**Input file creation**
 
 Pipeline is tested on paired-end ilumina data processed as follow:
 - Adapters are removed with SeqPurge v0.1-104 (-min_len 20)
@@ -26,14 +29,12 @@ Pipeline is tested on paired-end ilumina data processed as follow:
 - a copy of the bamfile is made in which chromosome prefixes are removed for breakmer compatibility
 - BreaKmer is performed using target regions of 5000 bp each
 
-bamfiles need to be of the following make up:
+bamfiles need to be stored in the folder bam located at the same level as the folder containing the snakefile (translocation-snake) and have names of the followin make-up:
 
-stored in the folder bam located at the same level as the git folder (translocation-snake)
-  {name}_coordsorted_nochr.bam
-          and
-      {name}_coordsorted.bam
+  {name}_coordsorted_nochr.bam and {name}_coordsorted.bam
 
 Gridss, Novobreak and wham are performed by snakemake
 
 [source activate translocation-snake]
+
 [snakemake ]
