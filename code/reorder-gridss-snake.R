@@ -4,7 +4,9 @@
 #date:   20-10-2017
 #Name:   reorder-gridss.R
 
-# This script is written to reorder raw gridss output vcf data, add gene information and svtype and to remove chrM events and deduplicate the events. Part of the script is based on scripts provided by gridss (github examples)
+# This script is written to reorder raw gridss output vcf data, add gene information and svtype and to remove chrM events and deduplicate the events.
+# Part of the script is based on scripts provided by gridss (github examples)
+# this script is part of the translocation snakemake
 
 #call this script by:
 # reorder-gridss.R
@@ -19,7 +21,7 @@ suppressMessages(library(org.Hs.eg.db))
 suppressMessages(library(bedr))
 suppressMessages(library(plyr))
 
-source("code/171108-reorder_functions.R")
+source("code/reorder_functions.R")
 
 #########################################################
 #               Locations annotation files              #

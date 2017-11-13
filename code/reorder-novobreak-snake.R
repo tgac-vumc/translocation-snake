@@ -5,14 +5,14 @@
 #date:   07-11-2017
 #Name:   reorder-novobreak-snake.R
 
-# This script is written to reorder Novobreak output data.
+# This script is written to reorder Novobreak output data as part of the translocation-snake pipeline.
 
-# 171107-reorder-novobreak-snake.R
+# reorder-novobreak-snake.R
 
 #########################################################
 #               load required libraries                 #
 #########################################################
-source("code/171108-reorder_functions.R")
+source("code/reorder_functions.R")
 suppressMessages(library(splitstackshape))
 suppressMessages(library(bedr))
 suppressMessages(library(VariantAnnotation))
