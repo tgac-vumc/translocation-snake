@@ -166,9 +166,9 @@ rule report:
         "../reports/{sample}-report.html"
     run:                                                 #run instead of shell, so plain code will run directly.
         report("""
-        ===================================
+        ===================================================
         Translocations in {wildcards.sample}
-        ===================================
+        ===================================================
 
         Reads were mapped to hg19 with BWA mem
 
