@@ -71,17 +71,16 @@ merge_SVs<-function(whamfile,gridssfile,novofile,breakmerfile, output, output2,o
 	df5<-df4[otherSV(df4),]
 	df4<-df4[!otherSV(df4),]
 
-	if(nrow(df4) != 0){df4$EVENT<-Event(df4)}else
-	{df4$EVENT<-integer()}
+	if(nrow(df4) != 0){df4$EVENT<-Event(df4)}else{df4$EVENT<-integer()}
 	write.table(df4, file=output ,sep="\t", row.names=FALSE)
-	
 	summarydf<-Summarize(df4)
 	write.table(summarydf, file=summary, sep="\t", row.names=FALSE)
+	
 
-	if(nrow(IG) != 0){IG$EVENT<-Event(IG)}
-	write.table(IG, file=output2 ,sep="\t", row.names=FALSE)
-	if(nrow(df5) != 0){df5$EVENT<-Event(df5)}
-	write.table(df5, file=output3 ,sep="\t", row.names=FALSE)
+	if(nrow(IG) != 0){IG$EVENT<-Event(IG)}else{IG$EVENT<-integer()}
+		write.table(IG, file=output2 ,sep="\t", row.names=FALSE)
+	if(nrow(df5) != 0){df5$EVENT<-Event(df5)}else{df5$EVENT<-integer()}
+		write.table(df5, file=output3 ,sep="\t", row.names=FALSE)
 
 }
 

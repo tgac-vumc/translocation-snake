@@ -5,7 +5,7 @@
 #date:   07-11-2017
 #Name:   reorder-wham-snake.R
 
-# This script is written to reorder wham output data with the snake pipeline.
+# This script is written to reorder wham output data with the translocation-snake pipeline.
 
 # reorder-wham-snake.R
 

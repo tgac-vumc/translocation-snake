@@ -5,10 +5,10 @@
 #date:   07-11-2017
 #Name:   reorder-breakmer004-snake.R
 
-# This script is written to reorder breakmer output data.
+# This script is written to reorder breakmer output data as part of the translocation-snake pipeline.
 # Based upon output of Breakmer 0.0.4
 
-# 171107-reorder-breakmer004-snake.R
+# reorder-breakmer004-snake.R
 
 #########################################################
 #               load required libraries                 #
