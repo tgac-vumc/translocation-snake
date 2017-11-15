@@ -27,8 +27,9 @@ names(side_two)<-names(side_one)
 genes<-rbind(side_one,side_two)
 genes<-genes[!duplicated(genes[,4]),]
 
-circos.genomicLabels(genes, labels.column = 4, cex=0.7, side="outside",  connection_height =convert_height(1.5, "mm") , labels_height = min(c(convert_height(2.5, "cm"))))
+if(nrow(genes)!=0){
+circos.genomicLabels(genes, labels.column = 4, cex=0.7, side="outside",  connection_height =convert_height(1.5, "mm") , labels_height = min(c(convert_height(2.5, "cm"))))}
 
-circos.genomicLink(side_one, side_two)
+if(nrow(side_one)!=0){circos.genomicLink(side_one, side_two)}
 
 dev.off()
