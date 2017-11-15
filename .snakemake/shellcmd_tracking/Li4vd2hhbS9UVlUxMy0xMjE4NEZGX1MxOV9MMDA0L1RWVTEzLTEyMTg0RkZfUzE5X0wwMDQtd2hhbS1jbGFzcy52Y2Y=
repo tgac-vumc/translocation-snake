@@ -1,1 +1,0 @@
-python2 /net/nfs/PAT/home/tjitske/WHAM/wham/utils/classify_WHAM_vcf.py --proc 4 ../wham/TVU13-12184FF_S19_L004/TVU13-12184FF_S19_L004-wham.vcf /net/nfs/PAT/home/tjitske/WHAM/wham/data/WHAM_training_data.txt > ../wham/TVU13-12184FF_S19_L004/TVU13-12184FF_S19_L004-wham-class.vcf 2> ../wham/log/TVU13-12184FF_S19_L004_class.log 

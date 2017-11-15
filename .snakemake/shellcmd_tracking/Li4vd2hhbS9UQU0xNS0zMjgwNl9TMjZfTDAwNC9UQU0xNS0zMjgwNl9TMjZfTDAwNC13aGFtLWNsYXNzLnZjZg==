@@ -1,1 +1,0 @@
-python2 /net/nfs/PAT/home/tjitske/WHAM/wham/utils/classify_WHAM_vcf.py --proc 4 ../wham/TAM15-32806_S26_L004/TAM15-32806_S26_L004-wham.vcf /net/nfs/PAT/home/tjitske/WHAM/wham/data/WHAM_training_data.txt > ../wham/TAM15-32806_S26_L004/TAM15-32806_S26_L004-wham-class.vcf 2> ../wham/log/TAM15-32806_S26_L004_class.log 
