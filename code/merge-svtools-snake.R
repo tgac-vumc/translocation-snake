@@ -5,13 +5,13 @@
 #date:   07-11-2017
 #Name:   merge-svtools.r
 
-# This script is written to merge the ordered output of breakmer, gridss, novobreak and wham
+# This script is written to merge the ordered output of breakmer, gridss, novobreak and wham as part of the translocation snake.
 
 #########################################################
 #               load required libraries                 #
 #########################################################
 suppressMessages(library(plyr))
-source("code/171108-merge_functions.R")
+source("code/merge_functions.R")
 
 blacklist<-read.delim(snakemake@config[["filters"]][["blacklist"]], stringsAsFactors=F, header=F)
 
@@ -71,16 +71,17 @@ merge_SVs<-function(whamfile,gridssfile,novofile,breakmerfile, output, output2,o
 	df5<-df4[otherSV(df4),]
 	df4<-df4[!otherSV(df4),]
 
-	if(nrow(df4) != 0){df4$EVENT<-Event(df4)
-		write.table(df4, file=output ,sep="\t", row.names=FALSE)
-		summarydf<-Summarize(df4)
-		write.table(summarydf, file=summary, sep="\t", row.names=FALSE)
-	}
+	if(nrow(df4) != 0){df4$EVENT<-Event(df4)}else
+	{df4$EVENT<-integer()}
+	write.table(df4, file=output ,sep="\t", row.names=FALSE)
+	
+	summarydf<-Summarize(df4)
+	write.table(summarydf, file=summary, sep="\t", row.names=FALSE)
 
-	if(nrow(IG) != 0){IG$EVENT<-Event(IG)
-		write.table(IG, file=output2 ,sep="\t", row.names=FALSE)}
-	if(nrow(df5) != 0){df5$EVENT<-Event(df5)
-		write.table(df5, file=output3 ,sep="\t", row.names=FALSE)}
+	if(nrow(IG) != 0){IG$EVENT<-Event(IG)}
+	write.table(IG, file=output2 ,sep="\t", row.names=FALSE)
+	if(nrow(df5) != 0){df5$EVENT<-Event(df5)}
+	write.table(df5, file=output3 ,sep="\t", row.names=FALSE)
 
 }
 

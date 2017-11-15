@@ -7,12 +7,12 @@
 
 # This script is written to reorder wham output data with the snake pipeline.
 
-# 171107-reorder-wham-snake.R
+# reorder-wham-snake.R
 
 #########################################################
 #               load required libraries                 #
 #########################################################
-source("code/171108-reorder_functions.R")
+source("code/reorder_functions.R")
 suppressMessages(library(splitstackshape))
 suppressMessages(library(bedr))
 suppressMessages(library(VariantAnnotation))

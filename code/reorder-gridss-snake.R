@@ -19,7 +19,7 @@ suppressMessages(library(org.Hs.eg.db))
 suppressMessages(library(bedr))
 suppressMessages(library(plyr))
 
-source("code/171108-reorder_functions.R")
+source("code/reorder_functions.R")
 
 #########################################################
 #               Locations annotation files              #

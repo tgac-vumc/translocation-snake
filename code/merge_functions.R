@@ -106,6 +106,7 @@
  	df<-arrange(df,EVENT, EVIDENCE_LEVEL,plyr::desc(DR),plyr::desc(DR2),plyr::desc(SR),plyr::desc(SR2))
  	occurence<-count(df$EVENT)
  	df$OCCURENCE<-occurence[df$EVENT,"freq"]
- 	df$TPorFP<-"TP" #this column is used to exclude rows from circlize plot if they are marked as FP
+ 	
+	if(nrow(df)>0){df$TPorFP<-"TP"}else{df$TPorFP<-character()} #this column is used to exclude rows from circlize plot if they are marked as FP
  	summarydf<-df[!duplicated(df$EVENT),]
  }

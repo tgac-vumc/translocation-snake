@@ -13,7 +13,7 @@
 #########################################################
 #               load required libraries                 #
 #########################################################
-source("code/171108-reorder_functions.R")
+source("code/reorder_functions.R")
 suppressMessages(library(data.table))
 suppressMessages(library(splitstackshape))
 suppressMessages(library(plyr))

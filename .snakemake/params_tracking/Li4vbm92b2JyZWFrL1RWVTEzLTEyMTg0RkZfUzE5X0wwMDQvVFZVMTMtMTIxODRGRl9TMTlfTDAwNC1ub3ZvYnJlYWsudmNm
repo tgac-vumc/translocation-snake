@@ -1,0 +1,5 @@
+'/net/nfs/PAT/analysis/MPS-310/Blood_combined_bam/combined_healthy_blood_nochr.bam'
+'/net/nfs/PAT/home/tjitske/files/ref/excl_chr/hg19_refgen_exclchr.fa'
+'/net/nfs/PAT/home/tjitske/novobreak/nb_distribution'
+'/net/nfs/PAT/home/tjitske/novobreak/nb_distribution/header.txt'
+'/net/nfs/PAT/home/tjitske/novobreak/nb_distribution/run_novoBreak.sh'
