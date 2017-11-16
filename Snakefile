@@ -6,7 +6,8 @@ rule all:
     input:
         expand("../merged/{sample}-trl_merged.csv",sample=SAMPLES),
         expand("../reports/{sample}-report.html",sample=SAMPLES),
-        expand("../reports/{sample}-circlize.png",sample=SAMPLES)
+        expand("../reports/{sample}-circlize.png",sample=SAMPLES),
+	expand("../breakmer{sample}/{sample}.cfg", sample=SAMPLES)
 
 rule run_gridss:
     input:
@@ -127,6 +128,18 @@ rule reorder_novobreak:
         targets=config['all']['targets']
     script:
         'code/reorder-novobreak-snake.R'
+
+rule run_breakmer:
+   input:
+	
+   output:
+        config="../breakmer/{sample}/{sample}.cfg"
+	#"../breakmer/Breakmer_output/{sample}_BCNHL_Seq_V2_allTRL_svs.out"
+   params:
+	cfg=config["breakmer"]["configurationfile"]
+   shell:
+       {params.cfg} > {output.config} 	
+
 
 rule reorder_breakmer:
     input:
