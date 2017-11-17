@@ -7,7 +7,7 @@ rule all:
         expand("../merged/{sample}-trl_merged.csv",sample=SAMPLES),
         expand("../reports/{sample}-report.html",sample=SAMPLES),
         expand("../reports/{sample}-circlize.png",sample=SAMPLES),
-	expand("../breakmer{sample}/{sample}.cfg", sample=SAMPLES)
+	expand("../breakmer/{sample}/{sample}.cfg", sample=SAMPLES)
 
 rule run_gridss:
     input:
@@ -129,16 +129,50 @@ rule reorder_novobreak:
     script:
         'code/reorder-novobreak-snake.R'
 
-rule run_breakmer:
+rule create_config_breakmer:
    input:
-	
+        bam="../bam/{sample}_coordsorted_nochr.bam"
    output:
         config="../breakmer/{sample}/{sample}.cfg"
-	#"../breakmer/Breakmer_output/{sample}_BCNHL_Seq_V2_allTRL_svs.out"
+        #"../breakmer/Breakmer_output/{sample}_BCNHL_Seq_V2_allTRL_svs.out"
    params:
-	cfg=config["breakmer"]["configurationfile"]
+        targets_bed=config["breakmer"]["targets_bed_file"],
+	refdir=config["breakmer"]["reference_data_dir"],
+        cutadapt_config=config["breakmer"]["cutadapt_config_file"],
+        cutadapt=config["breakmer"]["cutadapt"],
+	jellyfish=config["breakmer"]["jellyfish"],
+	ref=config["all"]["REF_NOCHR"],
+        annotation=config["breakmer"]["gene_annotation_file"],
+        kmer=config["breakmer"]["kmer_size"]
    shell:
-       {params.cfg} > {output.config} 	
+      'echo "analysis_name={wildcards.sample} \n\
+targets_bed_file={params.targets_bed} \n\
+sample_bam_file={input.bam} \n\
+analysis_dir=../breakmer/{wildcards.sample}/{wildcards.sample} \n\
+reference_data_dir={params.refdir} \n\
+cutadapt_config_file={params.cutadapt_config} \n\
+cutadapt={params.cutadapt} \n\
+jellyfish={params.jellyfish} \n\
+blat=blat \n\
+gfclient=gfClient \n\
+gfserver=gfServer \n\
+fatotwobit=faToTwoBit \n\
+reference_fasta={params.ref} \n\
+gene_annotation_file={params.annotation} \n\
+kmer_size={params.kmer}\
+" > {output.config}' 	
+
+rule run_breakmer:
+    input:
+        config="../breakmer/{sample}/{sample}.cfg"
+    output:
+         out="../breakmer/Breakmer_output/{sample}_BCNHL_Seq_V2_allTRL_svs.out"
+    params:
+         breakmer=config["breakmer"]["BREAKMER"]
+    shell:
+         "python2 {params.breaKmer} run -k -c {input.config}
+
+
 
 
 rule reorder_breakmer:
@@ -177,7 +211,7 @@ rule report:
 
     output:
         "../reports/{sample}-report.html"
-    run:                                                 #run instead of shell, so plain code will run directly.
+    run:                                     #run instead of shell, so plain code will run directly.    
         report("""
 
         ===================================================
@@ -201,6 +235,7 @@ rule report:
         This resulted in  variants.
 
         """, output[0], **input)
+
 
 rule circlize:
     input:

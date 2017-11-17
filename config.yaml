@@ -14,42 +14,30 @@ filters:
     blacklist: code/blacklist.bed         #blacklist in bedfile format
 
 gridss:
-  GRIDSS_JAR: /net/nfs/PAT/home/tjitske/GRIDSS/gridss-1.4.2-jar-with-dependencies.jar
+    GRIDSS_JAR: /net/nfs/PAT/home/tjitske/GRIDSS/gridss-1.4.2-jar-with-dependencies.jar
 
 wham:
-  WHAM: /net/nfs/PAT/home/tjitske/WHAM/wham/bin/wham
-  CLASSIFY: /net/nfs/PAT/home/tjitske/WHAM/wham/utils/classify_WHAM_vcf.py
-  TRAIN: /net/nfs/PAT/home/tjitske/WHAM/wham/data/WHAM_training_data.txt
-  MAPQUAL: 10
-  BASEQUAL: 5
+    WHAM: /net/nfs/PAT/home/tjitske/WHAM/wham/bin/wham
+    CLASSIFY: /net/nfs/PAT/home/tjitske/WHAM/wham/utils/classify_WHAM_vcf.py
+    TRAIN: /net/nfs/PAT/home/tjitske/WHAM/wham/data/WHAM_training_data.txt
+    MAPQUAL: 10
+    BASEQUAL: 5
 
 novobreak:
-  NOVOBREAK: /net/nfs/PAT/home/tjitske/novobreak/nb_distribution/run_novoBreak.sh
-  EXE_DIR: /net/nfs/PAT/home/tjitske/novobreak/nb_distribution
-  NORMAL: /net/nfs/PAT/analysis/MPS-310/Blood_combined_bam/combined_healthy_blood_nochr.bam
-  HEADER: /net/nfs/PAT/home/tjitske/novobreak/nb_distribution/header.txt
+    NOVOBREAK: /net/nfs/PAT/home/tjitske/novobreak/nb_distribution/run_novoBreak.sh
+    EXE_DIR: /net/nfs/PAT/home/tjitske/novobreak/nb_distribution
+    NORMAL: /net/nfs/PAT/analysis/MPS-310/Blood_combined_bam/combined_healthy_blood_nochr.bam
+    HEADER: /net/nfs/PAT/home/tjitske/novobreak/nb_distribution/header.txt
 
 
-breakmer:
-
-  configurationfile: >-
-    analysis_name={sample}
-
-    targets_bed_file=code/BCNHL_Seq_V2_allTRL.bed
-    sample_bam_file={input.bam}
-    analysis_dir=../breakmer/{sample}
-
-    reference_data_dir=/net/nfs/PAT/home/tjitske/BreaKmer/new_2016-05-26/BreaKmer-master/reference
-    cutadapt_config_file=/net/nfs/PAT/home/tjitske/BreaKmer/dev-2017-03-17/BreaKmer-dev/cutadapt.cfg
-    cutadapt=/net/nfs/PAT/lib/cutadapt/cutadapt-1.1/bin/cutadapt
-    jellyfish=/net/nfs/PAT/home/tjitske/Jellyfish/jellyfish-2.2.6/bin/jellyfish
-    blat=blat
-    gfserver=gfServer
-    gfclient=gfClient
-    fatotwobit=faToTwoBit
-    reference_fasta={config['all']['REF_NOCHR']}
-    gene_annotation_file=/net/nfs/PAT/data/ref/iGenomes/Homo_sapiens/UCSC/hg19/Annotation/Genes/refGene.txt
-    kmer_size=15
+breakmer: 
+    targets_bed_file: code/BCNHL_Seq_V2_allTRL.bed
+    reference_data_dir: /net/nfs/PAT/home/tjitske/BreaKmer/new_2016-05-26/BreaKmer-master/reference
+    cutadapt_config_file: /net/nfs/PAT/home/tjitske/BreaKmer/dev-2017-03-17/BreaKmer-dev/cutadapt.cfg
+    cutadapt: /net/nfs/PAT/lib/cutadapt/cutadapt-1.1/bin/cutadapt
+    jellyfish: /net/nfs/PAT/home/tjitske/Jellyfish/jellyfish-2.2.6/bin/jellyfish
+    gene_annotation_file: /net/nfs/PAT/data/ref/iGenomes/Homo_sapiens/UCSC/hg19/Annotation/Genes/refGene.txt
+    kmer_size: 15 
 
 
 
