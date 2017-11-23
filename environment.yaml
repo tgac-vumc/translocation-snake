@@ -18,3 +18,5 @@ dependencies:
   - r-splitstackshape
   - bioconductor-VariantAnnotation
   - r-devtools
+  - blat
+  

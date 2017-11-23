@@ -1,26 +1,27 @@
 configfile: "config.yaml"
 from snakemake.utils import report
 SAMPLES, = glob_wildcards("../bam/{sample}_coordsorted.bam")
+#SAMPLES = ["",""]
 
 rule all:
     input:
-        expand("../merged/{sample}-trl_merged.csv",sample=SAMPLES),
+        #expand("../merged/{sample}-trl_merged.csv",sample=SAMPLES),
         expand("../reports/{sample}-report.html",sample=SAMPLES),
-        expand("../reports/{sample}-circlize.png",sample=SAMPLES),
-	expand("../breakmer/{sample}/{sample}.cfg", sample=SAMPLES)
+        #expand("../reports/{sample}-circlize.png",sample=SAMPLES),
+	    #expand("../breakmer/{sample}/{sample}.cfg", sample=SAMPLES)
 
 rule run_gridss:
     input:
         bam="../bam/{sample}_coordsorted.bam"
     output:
         vcf="../gridss/{sample}/{sample}-gridss.vcf",
-        assembly="../gridss/{sample}/{sample}-gridss.assembly.bam"
     log:
         "../gridss/log/{sample}.log"
     params:
         GRIDSS_JAR=config['gridss']['GRIDSS_JAR'],
         DIR="../gridss/{sample}/",
-        ref=config['all']['REF_CHR']
+        ref=config['all']['REF_CHR'],
+        assembly="../gridss/{sample}/{sample}-gridss.assembly.bam"
     threads:config["all"]["THREADS"]
     shell:
         "(java -ea -Xmx31g "
@@ -34,7 +35,7 @@ rule run_gridss:
         "REFERENCE_SEQUENCE={params.ref} "
         "INPUT={input.bam} "
         "OUTPUT={output.vcf} "
-        "ASSEMBLY={output.assembly} "
+        "ASSEMBLY={params.assembly} "
         "THREADS={threads} "
         ") 2> {log} "
 
@@ -137,18 +138,20 @@ rule create_config_breakmer:
         #"../breakmer/Breakmer_output/{sample}_BCNHL_Seq_V2_allTRL_svs.out"
    params:
         targets_bed=config["breakmer"]["targets_bed_file"],
-	refdir=config["breakmer"]["reference_data_dir"],
+        #analysis_name="{sample}"+config["breakmer"]["analysis_name"],
+        analysis_name="{sample}_BCNHL_Seq_V2_allTRL",
+	    refdir=config["breakmer"]["reference_data_dir"],
         cutadapt_config=config["breakmer"]["cutadapt_config_file"],
         cutadapt=config["breakmer"]["cutadapt"],
-	jellyfish=config["breakmer"]["jellyfish"],
-	ref=config["all"]["REF_NOCHR"],
+	    jellyfish=config["breakmer"]["jellyfish"],
+	    ref=config["all"]["REF_NOCHR"],
         annotation=config["breakmer"]["gene_annotation_file"],
         kmer=config["breakmer"]["kmer_size"]
    shell:
-      'echo "analysis_name={wildcards.sample} \n\
+      'echo "analysis_name={params.analysis_name} \n\
 targets_bed_file={params.targets_bed} \n\
 sample_bam_file={input.bam} \n\
-analysis_dir=../breakmer/{wildcards.sample}/{wildcards.sample} \n\
+analysis_dir=../breakmer/{wildcards.sample} \n\
 reference_data_dir={params.refdir} \n\
 cutadapt_config_file={params.cutadapt_config} \n\
 cutadapt={params.cutadapt} \n\
@@ -160,20 +163,21 @@ fatotwobit=faToTwoBit \n\
 reference_fasta={params.ref} \n\
 gene_annotation_file={params.annotation} \n\
 kmer_size={params.kmer}\
-" > {output.config}' 	
+" > {output.config}'
 
 rule run_breakmer:
     input:
-        config="../breakmer/{sample}/{sample}.cfg"
+        bam="../bam/{sample}_coordsorted_nochr.bam",
+        config="../breakmer/{sample}/{sample}.cfg",
     output:
          out="../breakmer/Breakmer_output/{sample}_BCNHL_Seq_V2_allTRL_svs.out"
     params:
-         breakmer=config["breakmer"]["BREAKMER"]
+        breakmer=config["breakmer"]["BREAKMER"],
+         #analysis_name="{sample}"+config["breakmer"]["analysis_name"]
+        analysis_name="{sample}_BCNHL_Seq_V2_allTRL"
     shell:
-         "python2 {params.breaKmer} run -k -c {input.config}
-
-
-
+         "python2 {params.breakmer} run -c {input.config} ;"
+         "cp ../breakmer/{wildcards.sample}/output/{params.analysis_name}_svs.out {output.out}"
 
 rule reorder_breakmer:
     input:
@@ -211,7 +215,7 @@ rule report:
 
     output:
         "../reports/{sample}-report.html"
-    run:                                     #run instead of shell, so plain code will run directly.    
+    run:                                     #run instead of shell, so plain code will run directly.
         report("""
 
         ===================================================
