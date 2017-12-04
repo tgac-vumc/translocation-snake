@@ -248,8 +248,8 @@ rule report:
 
 rule circlize:
     input:
-        summary="../merged/{sample}-trl_summary.csv"
-        script"code/circlize.R"
+        summary="../merged/{sample}-trl_summary.csv",
+        script="code/circlize.R"
     output:
         circlize="../reports/{sample}-circlize.png"
     script:
