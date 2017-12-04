@@ -30,16 +30,16 @@
  Event<-function(df){
   df$EVENT<-NA
  	event<-0
- 	#if(nrow(df)>1){
+ 	if(nrow(df)>1){
  		for(i in 1:(nrow(df))){
-      same_event<-which(df[i,"CHROM"]== df["CHROM"] &  abs(df[i,"POS"] - df["POS"])< 10 &  df[i,"CHROM2"]== df["CHROM2"] &  abs(df[i,"POS2"] - df["POS2"])< 10)
-      #if (df[i,"CHROM"]== df[i+1,"CHROM"] &  abs(df[i,"POS"] - df[i+1,"POS"])< 10 &  df[i,"CHROM2"]== df[i+1,"CHROM2"] &  abs(df[i,"POS2"] - df[i+1,"POS2"])< 10){
-        print(same_event)
+      same_event<-which(df[i,"CHROM"]== df["CHROM"] &  abs(df[i,"POS"] - df["POS"])< 10 &  df[i,"CHROM2"]== df["CHROM2"] &  abs(df[i,"POS2"] - df["POS2"])< 10
         if(sum(!is.na(df$EVENT[same_event]))==0){
           event<-event+1
           df$EVENT[same_event]<-event
         }else{df$EVENT[same_event]<-event}
+      }
     }
+  return(df$EVENT)
   }
 
 RemoveSingleToolEvents<-function(df){
