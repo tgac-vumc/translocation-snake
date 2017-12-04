@@ -68,6 +68,8 @@ merge_SVs<-function(whamfile,gridssfile,novofile,breakmerfile, output, output2,o
 
 	df2<-Evidence(df2,highSVevidence)
 
+	df2<-CalculateVAF(df2)
+
 	IG<-df2[(grepl("^IG",df2$GENE)&grepl("^IG",df2$GENE2)),]
 	df4<-df2[!(grepl("^IG",df2$GENE)&grepl("^IG",df2$GENE2)),]
 

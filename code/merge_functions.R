@@ -53,6 +53,11 @@ newdf<-df
   return(newdf)
 }
 
+CalculateVAF<-function(df){
+  df$VAF<-round(df$SR/df$BRKPT_COV*100, digits=1)
+  df$VAF2<-round(df$SR2/df$BRKPT_COV2*100, digits=1)
+return(df)
+}
 
  # Annotate if there is a hign level of evidence for a translocation based on discordant and split reads.
  Evidence<-function(df, highSVevidence){
@@ -116,8 +121,10 @@ newdf<-df
  	df<-arrange(df,EVENT, EVIDENCE_LEVEL,plyr::desc(DR),plyr::desc(DR2),plyr::desc(SR),plyr::desc(SR2))
  	occurence<-count(df$EVENT)
  	df$OCCURENCE<-occurence[df$EVENT,"freq"]
-
+  allevents<-unique(df$EVENT)
+  for(i in allevents){
+    df$ALL_TOOLS[df$EVENT==i]<-paste(unique(df[df$EVENT==i,"TOOL"]),collapse=",")
+  }
  	if(nrow(df)>0){df$TPorFP<-"TP"}else{df$TPorFP<-character()} #this column is used to exclude rows from circlize plot if they are marked as FP
-
  	summarydf<-df[!duplicated(df$EVENT),]
  }
