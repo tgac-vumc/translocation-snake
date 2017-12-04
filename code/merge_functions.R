@@ -111,19 +111,16 @@ return(df)
 
  #function to find out if event is translocation or High evidence other event
  otherSV<-function(df){
-
  	!(df$SVTYPE == "TRL" | df$EVIDENCE_LEVEL == "HIGH")
-
  }
 
  #function to keep only one line per event with highest level of evidence
  Summarize<-function(df){
  	df<-arrange(df,EVENT, EVIDENCE_LEVEL,plyr::desc(DR),plyr::desc(DR2),plyr::desc(SR),plyr::desc(SR2))
- 	occurence<-count(df$EVENT)
- 	df$OCCURENCE<-occurence[df$EVENT,"freq"]
   allevents<-unique(df$EVENT)
   for(i in allevents){
     df$ALL_TOOLS[df$EVENT==i]<-paste(unique(df[df$EVENT==i,"TOOL"]),collapse=",")
+    df$OCCURENCE[df$EVENT==i]<-sum(df$EVENT==i)
   }
  	if(nrow(df)>0){df$TPorFP<-"TP"}else{df$TPorFP<-character()} #this column is used to exclude rows from circlize plot if they are marked as FP
  	summarydf<-df[!duplicated(df$EVENT),]
