@@ -32,7 +32,7 @@
  	event<-0
  	if(nrow(df)>1){
  		for(i in 1:(nrow(df))){
-      same_event<-which(df[i,"CHROM"]== df["CHROM"] &  abs(df[i,"POS"] - df["POS"])< 10 &  df[i,"CHROM2"]== df["CHROM2"] &  abs(df[i,"POS2"] - df["POS2"])< 10
+      same_event<-which(df[i,"CHROM"]== df["CHROM"] &  abs(df[i,"POS"] - df["POS"])< 10 &  df[i,"CHROM2"]== df["CHROM2"] &  abs(df[i,"POS2"] - df["POS2"])< 10)
         if(sum(!is.na(df$EVENT[same_event]))==0){
           event<-event+1
           df$EVENT[same_event]<-event
@@ -55,8 +55,7 @@ newdf<-df
 
 
  # Annotate if there is a hign level of evidence for a translocation based on discordant and split reads.
- Evidence<-function(df){
- 	highSVevidence=snakemake@config[["filters"]][["highSVevidence"]]
+ Evidence<-function(df, highSVevidence){
  	df$EVIDENCE_LEVEL[df$SR >= highSVevidence & df$SR2 >= highSVevidence & (df$DR >=highSVevidence | is.na(df$DR)) &  (df$DR2 >=highSVevidence | is.na(df$DR2))]<-"HIGH"
  	df$EVIDENCE_LEVEL[!(df$SR >= highSVevidence & df$SR2 >= highSVevidence & (df$DR >=highSVevidence | is.na(df$DR)) &  (df$DR2 >=highSVevidence | is.na(df$DR2)))]<-"LOW"
 

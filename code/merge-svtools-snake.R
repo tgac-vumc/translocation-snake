@@ -23,12 +23,16 @@ output=snakemake@output[['trl']]
 output2=snakemake@output[['IG']]
 output3=snakemake@output[['otherSVs']]
 summary=snakemake@output[['summary']]
-
+highSVevidence=snakemake@config[["filters"]][["highSVevidence"]]
+splitread=snakemake@config[["filters"]][["splitread"]]
+discread=snakemake@config[["filters"]][["discread"]]
+novoscore=snakemake@config[["filters"]][["novoscore"]]
+gridssscore=snakemake@config[["filters"]][["gridssscore"]]
 #########################################################
 #               merge all SVs from the four tools       #
 #########################################################
 
-merge_SVs<-function(whamfile,gridssfile,novofile,breakmerfile, output, output2,output3,summary){
+merge_SVs<-function(whamfile,gridssfile,novofile,breakmerfile, output, output2,output3,summary,highSVevidence, splitread, discread,novoscore,gridssscore){
 
 	wham<-read.delim(whamfile, stringsAsFactors = F)
 	gridss<-read.delim(gridssfile, stringsAsFactors = F)
@@ -44,10 +48,10 @@ merge_SVs<-function(whamfile,gridssfile,novofile,breakmerfile, output, output2,o
 	wham$QUAL<-as.numeric(wham$QUAL)
 	breakmer$QUAL<-as.numeric(breakmer$QUAL)
 
-	wham<-filter_wham(wham,snakemake@config[["filters"]][["splitread"]])
-	gridss<-filter_gridss(gridss,snakemake@config[["filters"]][["gridssscore"]])
-	breakmer<-filter_breakmer(breakmer,snakemake@config[["filters"]][["discread"]], snakemake@config[["filters"]][["splitread"]])
-	novo<-filter_novobreak(novo,snakemake@config[["filters"]][["novoscore"]])
+	wham<-filter_wham(wham,splitread)
+	gridss<-filter_gridss(gridss,gridssscore)
+	breakmer<-filter_breakmer(breakmer,discread, splitread)
+	novo<-filter_novobreak(novo,novoscore)
 
 	df<-rbind(wham[1:19],gridss[1:19],breakmer[1:19],novo[1:19])
 	df<-arrange(df,CHROM,POS,CHROM2,POS2,desc(SR),desc(SR2),desc(DR),desc(DR2))
@@ -62,7 +66,7 @@ merge_SVs<-function(whamfile,gridssfile,novofile,breakmerfile, output, output2,o
 	keeplist<-removeSingles(df)
 	df2<-df[keeplist,]
 
-	df2<-Evidence(df2)
+	df2<-Evidence(df2,highSVevidence)
 
 	IG<-df2[(grepl("^IG",df2$GENE)&grepl("^IG",df2$GENE2)),]
 	df4<-df2[!(grepl("^IG",df2$GENE)&grepl("^IG",df2$GENE2)),]
@@ -86,4 +90,4 @@ merge_SVs<-function(whamfile,gridssfile,novofile,breakmerfile, output, output2,o
 
 }
 
-merge_SVs(whamfile,gridssfile,novofile,breakmerfile, output,output2,output3,summary)
+merge_SVs(whamfile,gridssfile,novofile,breakmerfile, output,output2,output3,summary,highSVevidence,splitread, discread,novoscore, gridssscore)

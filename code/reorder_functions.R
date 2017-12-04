@@ -10,8 +10,8 @@
 
  #########################################################
 
-get_ext_capture_targets<-function(){
-  capture_targets<-read.table(snakemake@params[["targets"]], sep="\t", stringsAsFactors =F, header= F) #"code/BCNHLv2_primary_coord.bed"
+get_ext_capture_targets<-function(targetfile){
+  capture_targets<-read.table(targetfile, sep="\t", stringsAsFactors =F, header= F) #"code/BCNHLv2_primary_coord.bed"
   capture_targets[,2]<-capture_targets[,2]-300
   capture_targets[,3]<-capture_targets[,3]+300
   return(capture_targets)
