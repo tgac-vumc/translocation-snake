@@ -28,20 +28,31 @@
 
  #count number of events, an event is a single structural variant, a reciprocal translocation can consist of one or two events depending on the distance of the two breakpoints from each other. within 10 bp is called 1 event.
  Event<-function(df){
+  df$EVENT<-NA
+ 	event<-0
+ 	#if(nrow(df)>1){
+ 		for(i in 1:(nrow(df))){
+      same_event<-which(df[i,"CHROM"]== df["CHROM"] &  abs(df[i,"POS"] - df["POS"])< 10 &  df[i,"CHROM2"]== df["CHROM2"] &  abs(df[i,"POS2"] - df["POS2"])< 10)
+      #if (df[i,"CHROM"]== df[i+1,"CHROM"] &  abs(df[i,"POS"] - df[i+1,"POS"])< 10 &  df[i,"CHROM2"]== df[i+1,"CHROM2"] &  abs(df[i,"POS2"] - df[i+1,"POS2"])< 10){
+        print(same_event)
+        if(sum(!is.na(df$EVENT[same_event]))==0){
+          event<-event+1
+          df$EVENT[same_event]<-event
+        }else{df$EVENT[same_event]<-event}
+    }
+  }
 
- 	event<-1
- 	if(nrow(df)>1){
- 		for(i in 1:(nrow(df)-1)){
- 			if (df[i,"CHROM"]== df[i+1,"CHROM"] &  abs(df[i,"POS"] - df[i+1,"POS"])< 10 &  df[i,"CHROM2"]== df[i+1,"CHROM2"] &  abs(df[i,"POS2"] - df[i+1,"POS2"])< 10){
- 				df$EVENT[i]<-event}
- 	else{
- 		df$EVENT[i]<-event
- 		event<-event+1}
- 	}
- 	df$EVENT[nrow(df)]<-event
- 	return(df$EVENT)
- 	}else{df$EVENT[1]<-event
- }}
+RemoveSingleToolEvents<-function(df){
+allevents<-unique(df$EVENT)
+newdf<-df
+  for(i in allevents){
+    if(length(unique(df[df$EVENT==i,"TOOL"]))==1){
+      newdf<-newdf[newdf$EVENT!=i,]
+    }
+  }
+  return(newdf)
+}
+
 
  # Annotate if there is a hign level of evidence for a translocation based on discordant and split reads.
  Evidence<-function(df){

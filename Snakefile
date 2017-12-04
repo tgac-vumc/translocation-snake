@@ -42,6 +42,7 @@ rule run_gridss:
 rule reorder_gridss:
     input:
         vcf="../gridss/{sample}/{sample}-gridss.vcf"
+        script="code/reorder-gridss-snake.R"
     output:
         dups="../gridss/{sample}/{sample}-gridss_dups.csv",
         ordered="../gridss/{sample}/{sample}-gridss_ordered.csv"
@@ -89,6 +90,7 @@ rule classify_wham:
 rule reorder_wham:
     input:
         classified="../wham/{sample}/{sample}-wham-class.vcf"
+        script="code/reorder-wham-snake.R"
     output:
         dups="../wham/{sample}/{sample}-wham_dups.csv",
         ordered="../wham/{sample}/{sample}-wham_ordered.csv"
@@ -121,6 +123,7 @@ rule run_novobreak:
 rule reorder_novobreak:
     input:
         vcf="../novobreak/{sample}/{sample}-novobreak.vcf"
+        script="code/reorder-novobreak-snake.R"
     output:
         dups="../novobreak/{sample}/{sample}-novobreak_dups.csv",
         ordered="../novobreak/{sample}/{sample}-novobreak_ordered.csv"
@@ -182,6 +185,7 @@ rule run_breakmer:
 rule reorder_breakmer:
     input:
         "../breakmer/Breakmer_output/{sample}_BCNHL_Seq_V2_allTRL_svs.out"
+        script="code/reorder-breakmer004-snake.R"
     output:
         dups="../breakmer/{sample}/{sample}-breakmer_dups.csv",
         ordered="../breakmer/{sample}/{sample}-breakmer_ordered.csv",
@@ -197,6 +201,7 @@ rule merge_svtools:
         breakmer="../breakmer/{sample}/{sample}-breakmer_ordered.csv",
         wham="../wham/{sample}/{sample}-wham_ordered.csv",
         gridss="../gridss/{sample}/{sample}-gridss_ordered.csv"
+        script="code/merge-svtools-snake.R"
     output:
         trl="../merged/{sample}-trl_merged.csv",
         IG="../merged/{sample}-IG_merged.csv",
@@ -244,6 +249,7 @@ rule report:
 rule circlize:
     input:
         summary="../merged/{sample}-trl_summary.csv"
+        script"code/circlize.R"
     output:
         circlize="../reports/{sample}-circlize.png"
     script:

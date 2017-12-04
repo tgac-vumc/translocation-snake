@@ -57,7 +57,7 @@ merge_SVs<-function(whamfile,gridssfile,novofile,breakmerfile, output, output2,o
 	#remove blacklist
 	df<-df[Blacklist(df),]
 
-	#remove events not called by two tools.
+	#remove events not called twice (most often by two different tools)
 	df<-df[!is.na(df$CHROM),]
 	keeplist<-removeSingles(df)
 	df2<-df[keeplist,]
@@ -72,10 +72,12 @@ merge_SVs<-function(whamfile,gridssfile,novofile,breakmerfile, output, output2,o
 	df4<-df4[!otherSV(df4),]
 
 	if(nrow(df4) != 0){df4$EVENT<-Event(df4)}else{df4$EVENT<-integer()}
+	#because sometimes an event is only detected by one tool, these are removed at this step.
+	df4<-RemoveSingleToolEvents(df4)
 	write.table(df4, file=output ,sep="\t", row.names=FALSE)
 	summarydf<-Summarize(df4)
 	write.table(summarydf, file=summary, sep="\t", row.names=FALSE)
-	
+
 
 	if(nrow(IG) != 0){IG$EVENT<-Event(IG)}else{IG$EVENT<-integer()}
 		write.table(IG, file=output2 ,sep="\t", row.names=FALSE)
