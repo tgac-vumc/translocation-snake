@@ -23,6 +23,7 @@ output=snakemake@output[['trl']]
 output2=snakemake@output[['IG']]
 output3=snakemake@output[['otherSVs']]
 summary=snakemake@output[['summary']]
+bedfile=snakemake@output[['bedfile']]
 highSVevidence=snakemake@config[["filters"]][["highSVevidence"]]
 splitread=snakemake@config[["filters"]][["splitread"]]
 discread=snakemake@config[["filters"]][["discread"]]
@@ -32,7 +33,7 @@ gridssscore=snakemake@config[["filters"]][["gridssscore"]]
 #               merge all SVs from the four tools       #
 #########################################################
 
-merge_SVs<-function(whamfile,gridssfile,novofile,breakmerfile, output, output2,output3,summary,highSVevidence, splitread, discread,novoscore,gridssscore){
+merge_SVs<-function(whamfile,gridssfile,novofile,breakmerfile, output, output2,output3,summary,bedfile,highSVevidence, splitread, discread,novoscore,gridssscore){
 
 	wham<-read.delim(whamfile, stringsAsFactors = F)
 	gridss<-read.delim(gridssfile, stringsAsFactors = F)
@@ -84,6 +85,8 @@ merge_SVs<-function(whamfile,gridssfile,novofile,breakmerfile, output, output2,o
 	summarydf<-Summarize(df4)
 	write.table(summarydf, file=summary, sep="\t", row.names=FALSE)
 
+bedfile<-Create_bed(summarydf)
+write.table(bedfile, file=bedfile, sep="\t", row.names=FALSE, col.names=FALSE)
 
 	if(nrow(IG) != 0){IG$EVENT<-Event(IG)}else{IG$EVENT<-integer()}
 		write.table(IG, file=output2 ,sep="\t", row.names=FALSE)
@@ -92,4 +95,4 @@ merge_SVs<-function(whamfile,gridssfile,novofile,breakmerfile, output, output2,o
 
 }
 
-merge_SVs(whamfile,gridssfile,novofile,breakmerfile, output,output2,output3,summary,highSVevidence,splitread, discread,novoscore, gridssscore)
+merge_SVs(whamfile,gridssfile,novofile,breakmerfile, output,output2,output3,summary,bedfile,highSVevidence,splitread, discread,novoscore, gridssscore)

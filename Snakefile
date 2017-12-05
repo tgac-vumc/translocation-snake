@@ -207,8 +207,20 @@ rule merge_svtools:
         IG="../merged/{sample}-IG_merged.csv",
         otherSVs="../merged/{sample}-other_merged.csv",
         summary="../merged/{sample}-trl_summary.csv"
+        bedfile="./merged/{sample}-trl.bed"
     script:
         'code/merge-svtools-snake.R'
+
+rule Calculate_VAF:
+    input:
+        summary="../merged/{sample}-trl_summary.csv",
+        bedfile="./merged/{sample}-trl.bed",
+        bam="../bam/{sample}_coordsorted.bam"
+    output:
+        summary="../merged/{sample}-trl_summary-vaf.csv"
+    run:
+        'samtools view -b -F 0x400 {input.bam} | bedtools coverage -d -abam stdin -b {input.bed}'
+
 
 rule report:
     input:
