@@ -85,14 +85,13 @@ merge_SVs<-function(whamfile,gridssfile,novofile,breakmerfile, output, output2,o
 	summarydf<-Summarize(df4)
 	write.table(summarydf, file=summary, sep="\t", row.names=FALSE)
 
-bedfile<-Create_bed(summarydf)
-write.table(bedfile, file=bedfile, sep="\t", row.names=FALSE, col.names=FALSE)
+	bed<-Create_bed(summarydf)
+	write.table(bed, file=bedfile, sep="\t", row.names=FALSE, col.names=FALSE, quote=FALSE)
 
 	if(nrow(IG) != 0){IG$EVENT<-Event(IG)}else{IG$EVENT<-integer()}
 		write.table(IG, file=output2 ,sep="\t", row.names=FALSE)
 	if(nrow(df5) != 0){df5$EVENT<-Event(df5)}else{df5$EVENT<-integer()}
 		write.table(df5, file=output3 ,sep="\t", row.names=FALSE)
-
 }
 
 merge_SVs(whamfile,gridssfile,novofile,breakmerfile, output,output2,output3,summary,bedfile,highSVevidence,splitread, discread,novoscore, gridssscore)
