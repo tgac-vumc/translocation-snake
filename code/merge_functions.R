@@ -68,10 +68,10 @@ return(df)
  }
 
  Create_bed<-function(df){
-
-   bed<-data.frame(chr=df$CHROM, start=df$POS-3, stop=df$POS+3)
-   bed2<-data.frame(chr=df$CHROM2, start=df$POS2-3, stop=df$POS2+3)
+   bed<-data.frame(chr=df$CHROM, start=df$POS-2, stop=df$POS+2)
+   bed2<-data.frame(chr=df$CHROM2, start=df$POS2-2, stop=df$POS2+2)
    combinedbed<-rbind(bed, bed2)
+   return(combinedbed)
  }
 
  #########################################################
