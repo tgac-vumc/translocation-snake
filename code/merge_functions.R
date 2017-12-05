@@ -67,6 +67,12 @@ return(df)
  	return(df)
  }
 
+ Create_bed<-function(df){
+
+   bed<-data.frame(chr=df$CHROM, start=df$POS-3, stop=df$POS+3)
+   bed2<-data.frame(chr=df$CHROM2, start=df$POS2-3, stop=df$POS2+3)
+   combinedbed<-rbind(bed, bed2)
+ }
 
  #########################################################
  #               Filter functions for the 4 tools        #
