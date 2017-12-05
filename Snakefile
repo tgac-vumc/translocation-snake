@@ -9,6 +9,7 @@ rule all:
         expand("../reports/{sample}-report.html",sample=SAMPLES),
         #expand("../reports/{sample}-circlize.png",sample=SAMPLES),
 	    #expand("../breakmer/{sample}/{sample}.cfg", sample=SAMPLES)
+        expand("../merged/{sample}-trl_summary_vaf.csv",sample=SAMPLES),
 
 rule run_gridss:
     input:
@@ -207,20 +208,27 @@ rule merge_svtools:
         IG="../merged/{sample}-IG_merged.csv",
         otherSVs="../merged/{sample}-other_merged.csv",
         summary="../merged/{sample}-trl_summary.csv",
-        bedfile="./merged/{sample}-trl.bed"
+        bedfile="../merged/{sample}-trl.bed"
     script:
         'code/merge-svtools-snake.R'
 
-rule Calculate_VAF:
+rule obtain_breakpoint_cov:
     input:
-        summary="../merged/{sample}-trl_summary.csv",
-        bedfile="./merged/{sample}-trl.bed",
+        bedfile="../merged/{sample}-trl.bed",
         bam="../bam/{sample}_coordsorted.bam"
     output:
-        summary="../merged/{sample}-trl_summary-vaf.csv"
+        cov="../merged/{sample}-trl_cov.txt"
     shell:
-        'samtools view -b -F 0x400 {input.bam} | bedtools coverage -d -abam stdin -b {input.bed}'
+        'samtools view -b -L {input.bedfile} -F 0x400 {input.bam} | bedtools coverage -d -b stdin -a {input.bedfile} > {output.cov}'
 
+rule CalculateVAF:
+    input:
+    	summary="../merged/{sample}-trl_summary.csv",
+        cov="../merged/{sample}-trl_cov.txt"
+    output:
+        vaf="../merged/{sample}-trl_summary_vaf.csv"
+    script:
+        'code/calculate_vaf.R'
 
 rule report:
     input:
