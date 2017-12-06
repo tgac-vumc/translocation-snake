@@ -24,7 +24,7 @@ if(!is.null(coverage)){
     CALCULATED_VAF<-round(difference/COV_HIGH*100, digits=1)
     if(i <= nrow(coverage)/2 ){
       summarydf[(((i-1)/4)+1),c("COV_LOW", "COV_HIGH","CALCULATED_VAF")]<-c(COV_LOW, COV_HIGH,CALCULATED_VAF)
-    }else{ summarydf[(((i-1)/4)-3),c("COV_LOW2", "COV_HIGH2","CALCULATED_VAF2")]<-c(COV_LOW, COV_HIGH,CALCULATED_VAF)
+    }else{ summarydf[(((i-nrow(coverage)/2-1)/4)+1),c("COV_LOW2", "COV_HIGH2","CALCULATED_VAF2")]<-c(COV_LOW, COV_HIGH,CALCULATED_VAF)
     }
   }
 }else{summarydf<-data.frame(summarydf,"COV_LOW"=integer(), "COV_HIGH"=integer(),"CALCULATED_VAF"=numeric(), "COV_LOW2"=integer(), "COV_HIGH2"=integer(),"CALCULATED_VAF2"=numeric())}
