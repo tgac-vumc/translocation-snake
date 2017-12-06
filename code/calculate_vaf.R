@@ -13,10 +13,11 @@ output<-snakemake@output[["vaf"]]
 
 calculate_vaf<-function(coverage_file, summary, output){
 
-coverage<-read.delim(coverage_file, header = F, stringsAsFactors = F)
+coverage<-tryCatch(read.delim(coverage_file, header = F, stringsAsFactors = F), error=function(e) NULL)
 summarydf<-read.delim(summary, stringsAsFactors = F)
-summarydf[,c("COV_LOW", "COV_HIGH","CALCULATED_VAF", "COV_LOW2", "COV_HIGH2","CALCULATED_VAF2")]<-NA
-  for( i in seq(1,nrow(coverage),by=4)){
+if(!is.null(coverage)){
+  summarydf[,c("COV_LOW", "COV_HIGH","CALCULATED_VAF", "COV_LOW2", "COV_HIGH2","CALCULATED_VAF2")]<-NA
+    for( i in seq(1,nrow(coverage),by=4)){
     COV_HIGH<-max(coverage[i:(i+3),"V5"])
     COV_LOW<-min(coverage[i:(i+3),"V5"])
     difference<-COV_HIGH-COV_LOW
@@ -26,6 +27,7 @@ summarydf[,c("COV_LOW", "COV_HIGH","CALCULATED_VAF", "COV_LOW2", "COV_HIGH2","CA
     }else{ summarydf[(((i-1)/4)-3),c("COV_LOW2", "COV_HIGH2","CALCULATED_VAF2")]<-c(COV_LOW, COV_HIGH,CALCULATED_VAF)
     }
   }
+}else{summarydf<-data.frame(summarydf,"COV_LOW"=integer(), "COV_HIGH"=integer(),"CALCULATED_VAF"=numeric(), "COV_LOW2"=integer(), "COV_HIGH2"=integer(),"CALCULATED_VAF2"=numeric())}
 write.table(summarydf,file=output, row.names=FALSE, sep="\t")
 }
 calculate_vaf(coverage_file, summary, output)
