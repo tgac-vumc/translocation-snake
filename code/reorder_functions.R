@@ -36,7 +36,9 @@ getGeneBed<-function(chr, start){
 	bed<-makeBed(chr,start)
 	gr<-makeGRangesFromDataFrame(bed)
 	hits <- as.data.frame(findOverlaps(gr, gns, ignore.strand=TRUE))
+	if(nrow(hits)!=0){
 	hits$SYMBOL <- biomaRt::select(org.Hs.eg.db, gns[hits$subjectHits]$gene_id, "SYMBOL")$SYMBOL
+	}else{hits$SYMBOL<-as.character()}
 	GENE<-rep("", nrow(chr))
 	GENE[hits$queryHits] <- hits$SYMBOL
 	return(GENE)

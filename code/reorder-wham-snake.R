@@ -63,14 +63,16 @@ orderWham<-function(inputfile, output1, output2){
 	vcf<-vcf[keeplist,]
 
 	#Annotate genes
-	vcf$GENE<-getGeneBed(vcf[,"CHROM"], vcf[,"POS"])
-	vcf$GENE2<-getGeneBed(vcf[,"CHROM2"],vcf[, "POS2"])
+	if(nrow(vcf)!=0){
+	  vcf$GENE<-getGeneBed(vcf[,"CHROM"], vcf[,"POS"])
+	  vcf$GENE2<-getGeneBed(vcf[,"CHROM2"],vcf[, "POS2"])
 
-	#Annotate genes that are in the capture panel as translocation targets more specific (exons, upstr gene, IGH etc.)
-	vcf$GENE<-apply(vcf[,c("CHROM","POS","GENE")],1,annotate_specific)
-	vcf$GENE2<-apply(vcf[,c("CHROM2","POS2","GENE2")],1,annotate_specific)
-
-	#create required columns in correct format.
+	  #Annotate genes that are in the capture panel as translocation targets more specific (exons, upstr gene, IGH etc.)
+	  vcf$GENE<-apply(vcf[,c("CHROM","POS","GENE")],1,annotate_specific)
+	  vcf$GENE2<-apply(vcf[,c("CHROM2","POS2","GENE2")],1,annotate_specific)
+	}else{vcf$GENE<-rep(NA_character_, nrow(vcf))
+	vcf$GENE2<-rep(NA_character_, nrow(vcf))}
+	  #create required columns in correct format.
 	vcf$DR2<-as.integer(rep(NA_character_, nrow(vcf)))
 	vcf$QUAL<-rep(NA_character_, nrow(vcf))
 	vcf$STRAND<-rep(NA_character_, nrow(vcf))

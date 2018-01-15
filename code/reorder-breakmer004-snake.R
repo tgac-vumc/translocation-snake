@@ -122,20 +122,20 @@ orderBreakmer<-function(inputfile, output1, output2, output3){
 #########################################################################
 	complex_rearrangements<-input[grepl("-",input$target_breakpoints),]
 
-	complex_rearrangements<-cSplit(complex_rearrangements, c("split_read_count"), sep=",")
+	if(nrow(complex_rearrangements)!= 0){complex_rearrangements<-cSplit(complex_rearrangements, c("split_read_count"), sep=",")
 
 #Reorder the results on structural variant subtype, discordant read count and split read count
-	if(length(complex_rearrangements)>20) {
-  	complex_rearrangements<-arrange(complex_rearrangements,desc(sv_subtype), desc(disc_read_count), desc(split_read_count_01),desc(split_read_count_02), desc(split_read_count_03), desc(split_read_count_04))
-	} else {
-		complex_rearrangements<-arrange(complex_rearrangements,desc(sv_subtype), desc(disc_read_count), desc(split_read_count_1), desc(split_read_count_2), desc(split_read_count_3), desc(split_read_count_4))
-	}
+  	if(length(complex_rearrangements)>20) {
+     	complex_rearrangements<-arrange(complex_rearrangements,desc(sv_subtype), desc(disc_read_count), desc(split_read_count_01),desc(split_read_count_02), desc(split_read_count_03), desc(split_read_count_04))
+  	} else {
+	  	complex_rearrangements<-arrange(complex_rearrangements,desc(sv_subtype), desc(disc_read_count), desc(split_read_count_1), desc(split_read_count_2), desc(split_read_count_3), desc(split_read_count_4))
+	  }
 
-	SRnames<-names(complex_rearrangements)
-	SRnames<-SRnames[grep("split_read_count",names(complex_rearrangements))]
+	  SRnames<-names(complex_rearrangements)
+	  SRnames<-SRnames[grep("split_read_count",names(complex_rearrangements))]
 
-	complex_rearrangements<-complex_rearrangements[,c('target_breakpoints','genes','sv_subtype',SRnames,'disc_read_count', 'breakpoint_coverages', 'total_matching', 'mismatches', 'strands', 'contig_id', 'contig_seq'),with=FALSE]
-
+	  complex_rearrangements<-complex_rearrangements[,c('target_breakpoints','genes','sv_subtype',SRnames,'disc_read_count', 'breakpoint_coverages', 'total_matching', 'mismatches', 'strands', 'contig_id', 'contig_seq'),with=FALSE]
+  }
 	write.table(complex_rearrangements, file=output3, sep="\t",row.names=FALSE)
 }
 

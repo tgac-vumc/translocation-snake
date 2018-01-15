@@ -1,5 +1,5 @@
 all:
-    THREADS: 4
+    THREADS: 3
     REF_CHR: /net/nfs/PAT/home/tjitske/files/ref/incl_chr/hg19.fa
     REF_NOCHR: /net/nfs/PAT/home/tjitske/files/ref/excl_chr/hg19_refgen_exclchr.fa
     Annotationfile: code/annotation_new_BCNHL-v2.bed
@@ -10,7 +10,7 @@ filters:
     discread: 3          #number of minimal amount of discordant read evidence
     novoscore: 4         #minimal novobreak QUAL score
     gridssscore: 450     #minimal gridss QUAL score
-    highSVevidence: 15   #minimal amount of split reads and discordant reads required for structural variants to be called High evidence
+    highSVevidence: 7   #minimal amount of split reads and discordant reads required for structural variants to be called High evidence
     blacklist: code/blacklist.bed         #blacklist in bedfile format
 
 gridss:

@@ -76,7 +76,7 @@ merge_SVs<-function(whamfile,gridssfile,novofile,breakmerfile, output, output2,o
 
 	#remove medium and low evidence insertions, deletions, inversions and duplications
 	df5<-df4[otherSV(df4),]
-	df4<-df4[!otherSV(df4),]
+	df4<-df4[tra_otherSV_HIGH(df4),]
 
 	if(nrow(df4) != 0){df4$EVENT<-Event(df4)}else{df4$EVENT<-integer()}
 	#because sometimes an event is only detected by one tool, these are removed at this step.

@@ -38,7 +38,7 @@
           df$EVENT[same_event]<-event
         }else{df$EVENT[same_event]<-event}
       }
-    }
+    }else{df$EVENT<-1}
   return(df$EVENT)
   }
 
@@ -117,7 +117,11 @@ return(df)
 
  #function to find out if event is translocation or High evidence other event
  otherSV<-function(df){
- 	!(df$SVTYPE == "TRL" | df$EVIDENCE_LEVEL == "HIGH")
+ 	!(df$SVTYPE == "TRL")
+ }
+ 
+ tra_otherSV_HIGH<-function(df){
+   (df$SVTYPE == "TRL" | df$EVIDENCE_LEVEL == "HIGH")
  }
 
  #function to keep only one line per event with highest level of evidence
