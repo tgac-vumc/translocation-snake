@@ -238,7 +238,7 @@ rule Calculate_brkpt_freq:
 rule report:
     input:
         summary="../merged/{sample}-trl_summary_brkpt_freq.csv",
-        circlize="../reports/{sample}-circlize.png",
+        circlize="../reports/circlize/{sample}-circlize.png",
         translocations="../merged/{sample}-trl_merged.csv",
         IG_rearrangments="../merged/{sample}-IG_merged.csv",
         otherSVs_low_evidence="../merged/{sample}-other_merged.csv"
