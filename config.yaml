@@ -1,5 +1,5 @@
-all:
-    THREADS: 3
+ALL:
+    THREADS: 4
     REF_CHR: /net/nfs/PAT/home/tjitske/files/ref/incl_chr/hg19.fa
     REF_NOCHR: /net/nfs/PAT/home/tjitske/files/ref/excl_chr/hg19_refgen_exclchr.fa
     Annotationfile: code/annotation_new_BCNHL-v2.bed

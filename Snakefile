@@ -10,8 +10,10 @@ rule all:
         #expand("../merged/{sample}-trl_merged.csv",sample=SAMPLES),
         expand("../reports/{sample}-report.html",sample=SAMPLES),
         #expand("../reports/{sample}-circlize.png",sample=SAMPLES),
-	    #expand("../breakmer/{sample}/{sample}.cfg", sample=SAMPLES)
+	#expand("../breakmer/{sample}/{sample}.cfg", sample=SAMPLES)
         #expand("../merged/{sample}-trl_summary_brkpt_freq.csv",sample=SAMPLES),
+        "../reports/circlize/index.html"
+
 
 rule run_gridss:
     input:
@@ -23,9 +25,9 @@ rule run_gridss:
     params:
         GRIDSS_JAR=config['gridss']['GRIDSS_JAR'],
         DIR="../gridss/{sample}/",
-        ref=config['all']['REF_CHR'],
+        ref=config['ALL']['REF_CHR'],
         assembly="../gridss/{sample}/{sample}-gridss.assembly.bam"
-    threads:config["all"]["THREADS"]
+    threads:config["ALL"]["THREADS"]
     shell:
         "(java -ea -Xmx31g "
         "-Dsamjdk.create_index=true "
@@ -50,8 +52,8 @@ rule reorder_gridss:
         dups="../gridss/{sample}/{sample}-gridss_dups.csv",
         ordered="../gridss/{sample}/{sample}-gridss_ordered.csv"
     params:
-        Annotationfile=config['all']["Annotationfile"],
-        targets=config['all']['targets']
+        Annotationfile=config['ALL']["Annotationfile"],
+        targets=config['ALL']['targets']
     script:
         '{input.script}'
 
@@ -64,11 +66,11 @@ rule run_wham:
         "../wham/log/{sample}.log"
     params:
         WHAM=config['wham']['WHAM'],
-        ref=config['all']['REF_NOCHR'],
+        ref=config['ALL']['REF_NOCHR'],
         mapqual=config['wham']['MAPQUAL'],
         basequal=config['wham']['BASEQUAL']
     threads:
-        config["all"]["THREADS"]
+        config["ALL"]["THREADS"]
     shell:
         " {params.WHAM} -f {params.ref} "
         " -p {params.mapqual} -q {params.basequal} "
@@ -85,7 +87,7 @@ rule classify_wham:
         TRAIN=config['wham']['TRAIN'],
         CLASSIFY=config['wham']['CLASSIFY'],
     threads:
-        config["all"]["THREADS"]
+        config["ALL"]["THREADS"]
     shell:
         "python2 {params.CLASSIFY} --proc {threads} {input.vcf} {params.TRAIN} "
         "> {output.classified} 2> {log} "
@@ -98,8 +100,8 @@ rule reorder_wham:
         dups="../wham/{sample}/{sample}-wham_dups.csv",
         ordered="../wham/{sample}/{sample}-wham_ordered.csv"
     params:
-        Annotationfile=config['all']["Annotationfile"],
-        targets=config['all']['targets']
+        Annotationfile=config['ALL']["Annotationfile"],
+        targets=config['ALL']['targets']
     script:
         '{input.script}'
 
@@ -114,10 +116,10 @@ rule run_novobreak:
         NOVOBREAK=config['novobreak']['NOVOBREAK'],
         NORMAL=config['novobreak']['NORMAL'],
         EXE_DIR=config['novobreak']['EXE_DIR'],
-        REF=config["all"]["REF_NOCHR"],
+        REF=config["ALL"]["REF_NOCHR"],
         HEADER=config["novobreak"]["HEADER"]
     threads:
-        config["all"]["THREADS"]
+        config["ALL"]["THREADS"]
     shell:
         "{params.NOVOBREAK} {params.EXE_DIR} {params.REF} {input.bam} "
         "{params.NORMAL} {threads} ../novobreak/{wildcards.sample} 2> {log} ; "
@@ -131,8 +133,8 @@ rule reorder_novobreak:
         dups="../novobreak/{sample}/{sample}-novobreak_dups.csv",
         ordered="../novobreak/{sample}/{sample}-novobreak_ordered.csv"
     params:
-        Annotationfile=config['all']["Annotationfile"],
-        targets=config['all']['targets']
+        Annotationfile=config['ALL']["Annotationfile"],
+        targets=config['ALL']['targets']
     script:
         '{input.script}'
 
@@ -150,7 +152,7 @@ rule create_config_breakmer:
         cutadapt_config=config["breakmer"]["cutadapt_config_file"],
         cutadapt=config["breakmer"]["cutadapt"],
 	    jellyfish=config["breakmer"]["jellyfish"],
-	    ref=config["all"]["REF_NOCHR"],
+	    ref=config["ALL"]["REF_NOCHR"],
         annotation=config["breakmer"]["gene_annotation_file"],
         kmer=config["breakmer"]["kmer_size"]
    shell:
@@ -194,7 +196,7 @@ rule reorder_breakmer:
         ordered="../breakmer/{sample}/{sample}-breakmer_ordered.csv",
         complexe="../breakmer/{sample}/{sample}-breakmer_complex.csv"
     params:
-        Annotationfile=config['all']["Annotationfile"]
+        Annotationfile=config['ALL']["Annotationfile"]
     script:
         '{input.script}'
 
@@ -268,12 +270,23 @@ rule report:
 
         """, output[0], **input)
 
-
 rule circlize:
     input:
         summary="../merged/{sample}-trl_summary_brkpt_freq.csv",
         script="code/circlize.R"
     output:
-        circlize="../reports/{sample}-circlize.png"
+        circlize="../reports/circlize/{sample}-circlize.png"
     script:
         '{input.script}'
+
+rule lightBox_circlize:
+    input:
+        circlize=expand("../reports/circlize/{sample}-circlize.png", sample=SAMPLES),
+        script='code/createLightBox.sh',
+    output:
+        index="../reports/circlize/index.html",
+    params:
+        profiles="../reports/circlize/",
+        lb2dir="lb2/",
+    shell:
+        "{input.script} {params.profiles} {params.lb2dir} > {output.index}"
