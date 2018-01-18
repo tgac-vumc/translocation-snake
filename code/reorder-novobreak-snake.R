@@ -42,7 +42,9 @@ orderNovobreak<-function(inputfile, output1, output2){
 	bedr<-read.vcf(inputfile, split.info = T)	#the extra columns of the vcf from novobreak are not read by this function, so excols is required to read those. however this is easy to remove infofield prefixes.
 	vcf<-bedr$vcf
 
-	excols<-read.delim(inputfile, header = F, sep="\t", stringsAsFactors = F, skip=23 )
+	excols<--tryCatch(read.delim(inputfile, header = F, sep = '\t', stringsAsFactors = F, skip=23), error=function(e) NULL)
+
+	if(!is.null(excols)){
 	colnames(excols)[11:39]<-c("CLUSTER_ID","CONTIG_NUM","SIZE","READS-ASSEMBLY", "COVIDENCE", "BRKPT_COV", "SR", "TUM_BRKPT1_QUAL", "TUM_BRKPT1_SR_HIGH_QUAL", "TUM_BRKPT1_SR_QUAL", "NORM_BRKPT1_DEP", "NORM_SR", "NORM_BRKPT1_QUAL", "NORM_BRKPT1_SR_HIGH_QUAL", "NORM_BRKPT1_SR_QUAL", "BRKPT_COV2", "SR2", "TUM_BRKPT2_QUAL", "TUM_BRKPT2_SR_HIGH_QUAL", "TUM_BRKPT2_SR_QUAL", "NORM_BRKPT2_DEP", "NORM_SR2", "NORM_BRKPT2_QUAL", "NORM_BRKPT2_SR_HIGH_QUAL", "NORM_BRKPT2_SR_QUAL", "DR" , "NORM_DR","DR2", "NORM_DR2")
 
 	vcf<-cbind(vcf[,c(1,2,3,6,7,11:13,16,18,19)], excols[,11:39])  #only keep the informative fields of the vcf and add the extra fields
@@ -94,7 +96,21 @@ orderNovobreak<-function(inputfile, output1, output2){
 	vcf2<-vcf[!duplicated(vcf[,1:7]),]
 
 	write.table(vcf, file=output1,row.names=FALSE, sep="\t")
-	write.table(vcf2, file=output2,row.names=FALSE, sep="\t")
+
+}else{vcf2<-data.frame(CHROM=character(), POS=integer(), CHROM2=character(),POS2=integer(),GENE=character(),GENE2=character(),
+	SVTYPE=character(),SR=integer(),SR2=integer(),DR=integer(),DR2=integer(),SVLEN=integer(), BRKPT_COV=integer(), BRKPT_COV2=integer(),
+	STRAND=character(),STRAND2=character(), QUAL=numeric(),ID=character(),TOOL=character(), CT=integer(), MAPQ=numeric() ,
+	CLUSTER_ID=character(), CONTIG_NUM=integer() ,SIZE=integer(),  READS-ASSEMBLY=integer(), TUM_BRKPT1_QUAL=numeric(),TUM_BRKPT1_SR_HIGH_QUAL =numeric(),
+	TUM_BRKPT1_SR_QUAL=numeric(), TUM_BRKPT2_QUAL=numeric(),  TUM_BRKPT2_SR_HIGH_QUAL=integer() , TUM_BRKPT2_SR_QUAL=numeric(),
+	NORM_BRKPT1_DEP=integer(), NORM_SR=integer(),NORM_BRKPT1_QUAL=numeric() , NORM_BRKPT1_SR_HIGH_QUAL=numeric(), NORM_BRKPT1_SR_QUAL=numeric(),
+	NORM_BRKPT2_DEP=integer() ,NORM_SR2=integer() ,NORM_BRKPT2_QUAL=numeric() ,NORM_BRKPT2_SR_HIGH_QUAL=numeric(), NORM_BRKPT2_SR_QUAL=numeric() ,
+	NORM_DR=integer(), NORM_DR2=integer(), FILTER=character(), CONTIG=character())
+
+
+
+
+}
+write.table(vcf2, file=output2,row.names=FALSE, sep="\t")
 }
 
 orderNovobreak(inputfile=snakemake@input[["vcf"]], output1=snakemake@output[["dups"]],output2=snakemake@output[["ordered"]])

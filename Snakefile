@@ -122,7 +122,7 @@ rule run_novobreak:
         config["ALL"]["THREADS"]
     shell:
         "{params.NOVOBREAK} {params.EXE_DIR} {params.REF} {input.bam} "
-        "{params.NORMAL} {threads} ../novobreak/{wildcards.sample} 2> {log} ; "
+        "{params.NORMAL} {threads} ../novobreak/{wildcards.sample} 2> {log} && "
         " cat {params.HEADER} ../novobreak/{wildcards.sample}/ssake/split/*.sp.vcf > {output.vcf} "
 
 rule reorder_novobreak:
