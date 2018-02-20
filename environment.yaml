@@ -26,10 +26,11 @@ dependencies:
   - r-R.cache
   - r-gtools
   - r-survival
+  - r-ggplot2
   - bioconductor-qdnaseq=1.10.0
   - bioconductor-biomart
   - bioconductor-VariantAnnotation
   - bioconductor-bsgenome
   - bioconductor-CGHregions
   - perl-bioperl
-  - perl-dbd-mysql 
+  - perl-dbd-mysql

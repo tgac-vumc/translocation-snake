@@ -74,7 +74,6 @@ orderWham<-function(inputfile, output1, output2){
 	vcf$GENE2<-rep(NA_character_, nrow(vcf))}
 	  #create required columns in correct format.
 	vcf$DR2<-as.integer(rep(NA_character_, nrow(vcf)))
-	vcf$QUAL<-rep(NA_character_, nrow(vcf))
 	vcf$STRAND<-rep(NA_character_, nrow(vcf))
 	vcf$STRAND2<-rep(NA_character_, nrow(vcf))
 	vcf$BRKPT_COV2<-as.integer(rep(NA_character_, nrow(vcf)))

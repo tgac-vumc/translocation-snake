@@ -10,10 +10,10 @@ rule all:
         #expand("../merged/{sample}-trl_merged.csv",sample=SAMPLES),
         expand("../reports/{sample}-report.html",sample=SAMPLES),
         #expand("../reports/{sample}-circlize.png",sample=SAMPLES),
-	#expand("../breakmer/{sample}/{sample}.cfg", sample=SAMPLES)
+	    #expand("../breakmer/{sample}/{sample}.cfg", sample=SAMPLES)
         #expand("../merged/{sample}-trl_summary_brkpt_freq.csv",sample=SAMPLES),
-        "../reports/circlize/index.html"
-
+        "../reports/circlize/index.html",
+        "../reports/summary.html"
 
 rule run_gridss:
     input:
@@ -269,6 +269,32 @@ rule report:
         This resulted in  variants.
 
         """, output[0], **input)
+
+# rule Covmetrics:
+#     input:
+#         script1='code/splitHSmetrics.sh',
+#         script2='code/c'
+#         hsmetrics="../Covmetrics/{sample}_HSmetrics.txt",
+#         perTargetCov="../Covmetrics/{sample}_PerTargetCov.txt",
+#     output:
+#         HsMetrics="../Covmetrics/{sample}_HsMetrics.txt",
+#         histogram="../Covmetrics/{sample}_CovHisto.txt"
+#     shell:
+#         ""
+
+rule summary:
+    input:
+        #stats=expand("../stats/{sample}.reads.all", sample=SAMPLES.keys()),
+        #index=expand("../{{binSize}}kbp/profiles/{profiletype}/index.html", profiletype=profiletypes),
+        script='code/summary.sh',
+        #qcfastq=expand("../qc-fastq/{wholename}_fastqc.html", wholename=wholenames),
+        #bamqc=expand("../qc-bam/{sample}_fastqc.html", sample=SAMPLES.keys()),
+    output:
+        "../reports/summary.html"
+    params:
+        bamfolder="../bam/'*'_coordsorted.bam",
+    shell:
+        "{input.script} Translocations {params.bamfolder} > {output}"
 
 rule circlize:
     input:
