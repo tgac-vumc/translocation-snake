@@ -68,6 +68,7 @@ do
   mtc=`awk 'NR==8 { print $23; }' ../CovMetrics/${sample}_HSmetrics.txt`
   x30=`awk 'NR==8 { print $39; }' ../CovMetrics/${sample}_HSmetrics.txt`
   x100=`awk 'NR==8 { print $42; }' ../CovMetrics/${sample}_HSmetrics.txt`
+  chimeric=`awk 'NR==10 { print $21; }' ../gridss/${sample}/${sample}_coordsorted.bam.gridss.working/${sample}_coordsorted.bam.alignment_summary_metrics'
 
   numtrl=`wc -l < "../merged/$sample-trl_summary_brkpt_freq.csv"`
   numoth=`wc -l < "../merged/$sample-other_merged.csv"`
@@ -95,6 +96,7 @@ fi
   printf "\t\t\t\t<td>%.0f</td>\n" $mtc
   printf "\t\t\t\t<td>%.2f%%</td>\n" `echo $x30*100 | bc -l`
   printf "\t\t\t\t<td>%.2f%%</td>\n" `echo $x100*100 | bc -l`
+  printf "\t\t\t\t<td>%.2f%%</td>\n" `echo $chimeric*100 | bc -l`
   echo -en '\t\t\t\t<td><a href='$sample3'>fastq</a>, '
   echo -e '\t\t\t\t<td><a href="circlize/'$sample'-circlize.png">circlize</a></td>'
   echo -e '\t\t\t\t<td><a href="../merged/'$sample'-trl_summary_brkpt_freq.csv">'`expr $numtrl - 1`'</a></td>'

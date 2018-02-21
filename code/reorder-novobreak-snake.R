@@ -33,6 +33,15 @@ Annotations[,1]<-paste("chr",Annotations[,1],sep="")
 capture_targets<-get_ext_capture_targets(snakemake@params[["targets"]])
 
 
+empty_vcf<-data.frame(CHROM=character(), POS=integer(), CHROM2=character(),POS2=integer(),GENE=character(),GENE2=character(),
+	SVTYPE=character(),SR=integer(),SR2=integer(),DR=integer(),DR2=integer(),SVLEN=integer(), BRKPT_COV=integer(), BRKPT_COV2=integer(),
+	STRAND=character(),STRAND2=character(), QUAL=numeric(),ID=character(),TOOL=character(), CT=integer(), MAPQ=numeric() ,
+	CLUSTER_ID=character(), CONTIG_NUM=integer() ,SIZE=integer(),  READS_ASSEMBLY=integer(), TUM_BRKPT1_QUAL=numeric(),TUM_BRKPT1_SR_HIGH_QUAL =numeric(),
+	TUM_BRKPT1_SR_QUAL=numeric(), TUM_BRKPT2_QUAL=numeric(),  TUM_BRKPT2_SR_HIGH_QUAL=integer() , TUM_BRKPT2_SR_QUAL=numeric(),
+	NORM_BRKPT1_DEP=integer(), NORM_SR=integer(),NORM_BRKPT1_QUAL=numeric() , NORM_BRKPT1_SR_HIGH_QUAL=numeric(), NORM_BRKPT1_SR_QUAL=numeric(),
+	NORM_BRKPT2_DEP=integer() ,NORM_SR2=integer() ,NORM_BRKPT2_QUAL=numeric() ,NORM_BRKPT2_SR_HIGH_QUAL=numeric(), NORM_BRKPT2_SR_QUAL=numeric() ,
+	NORM_DR=integer(), NORM_DR2=integer(), FILTER=character(), CONTIG=character())
+
 #########################################################
 #            reordering novobreak	                #
 #########################################################
@@ -73,6 +82,7 @@ orderNovobreak<-function(inputfile, output1, output2){
 	vcf<-as.data.table(vcf)
 
 	#Annotate genes
+	if(nrow(vcf)!=0){
 	vcf$GENE<-getGeneBed(vcf[,"CHROM"], vcf[,"POS"])
 	vcf$GENE2<-getGeneBed(vcf[,"CHROM2"],vcf[, "POS2"])
 
@@ -94,18 +104,11 @@ orderNovobreak<-function(inputfile, output1, output2){
 
 	#remove all duplicate entries
 	vcf2<-vcf[!duplicated(vcf[,1:7]),]
-
-}else{vcf<-data.frame(CHROM=character(), POS=integer(), CHROM2=character(),POS2=integer(),GENE=character(),GENE2=character(),
-	SVTYPE=character(),SR=integer(),SR2=integer(),DR=integer(),DR2=integer(),SVLEN=integer(), BRKPT_COV=integer(), BRKPT_COV2=integer(),
-	STRAND=character(),STRAND2=character(), QUAL=numeric(),ID=character(),TOOL=character(), CT=integer(), MAPQ=numeric() ,
-	CLUSTER_ID=character(), CONTIG_NUM=integer() ,SIZE=integer(),  READS_ASSEMBLY=integer(), TUM_BRKPT1_QUAL=numeric(),TUM_BRKPT1_SR_HIGH_QUAL =numeric(),
-	TUM_BRKPT1_SR_QUAL=numeric(), TUM_BRKPT2_QUAL=numeric(),  TUM_BRKPT2_SR_HIGH_QUAL=integer() , TUM_BRKPT2_SR_QUAL=numeric(),
-	NORM_BRKPT1_DEP=integer(), NORM_SR=integer(),NORM_BRKPT1_QUAL=numeric() , NORM_BRKPT1_SR_HIGH_QUAL=numeric(), NORM_BRKPT1_SR_QUAL=numeric(),
-	NORM_BRKPT2_DEP=integer() ,NORM_SR2=integer() ,NORM_BRKPT2_QUAL=numeric() ,NORM_BRKPT2_SR_HIGH_QUAL=numeric(), NORM_BRKPT2_SR_QUAL=numeric() ,
-	NORM_DR=integer(), NORM_DR2=integer(), FILTER=character(), CONTIG=character())
-
-	vcf2<-vcf
-
+	}else{vcf<-empty_vcf
+		  vcf2<-vcf
+	}
+}else{vcf<-empty_vcf
+	  vcf2<-vcf
 }
 write.table(vcf, file=output1,row.names=FALSE, sep="\t")
 write.table(vcf2, file=output2,row.names=FALSE, sep="\t")
