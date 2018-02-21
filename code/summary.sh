@@ -35,6 +35,7 @@ echo -e '\t\t\t\t<th colspan="2">aligned</th>'
 echo -e '\t\t\t\t<th>mean target cov</th>'
 echo -e '\t\t\t\t<th>%30x</th>'
 echo -e '\t\t\t\t<th>%100x</th>'
+echo -e '\t\t\t\t<th>%chimeric reads</th>'
 echo -e '\t\t\t\t<th>qc</th>'
 echo -e '\t\t\t\t<th><a href="circlize/index.html">circlize</a></th>'
 echo -e '\t\t\t\t<th><a href="../merged/">translocations</a></th>'
@@ -49,6 +50,7 @@ sumunique=0
 summtc=0
 sum30x=0
 sum100x=0
+sumchimeric=0
 sumtrl=0
 sumoth=0
 sumig=0
@@ -68,7 +70,7 @@ do
   mtc=`awk 'NR==8 { print $23; }' ../CovMetrics/${sample}_HSmetrics.txt`
   x30=`awk 'NR==8 { print $39; }' ../CovMetrics/${sample}_HSmetrics.txt`
   x100=`awk 'NR==8 { print $42; }' ../CovMetrics/${sample}_HSmetrics.txt`
-  chimeric=`awk 'NR==10 { print $21; }' ../gridss/${sample}/${sample}_coordsorted.bam.gridss.working/${sample}_coordsorted.bam.alignment_summary_metrics'
+  chimeric=`awk 'NR==10 { print $21; }' ../gridss/${sample}/${sample}_coordsorted.bam.gridss.working/${sample}_coordsorted.bam.alignment_summary_metrics`
 
   numtrl=`wc -l < "../merged/$sample-trl_summary_brkpt_freq.csv"`
   numoth=`wc -l < "../merged/$sample-other_merged.csv"`
@@ -80,6 +82,7 @@ do
   summtc=`echo $summtc + $mtc | bc -l`
   sum30x=`echo $sum30x + $x30 | bc -l`
   sum100x=`echo $sum100x + $x100 | bc -l`
+  sumchimeric=`echo $sumchimeric + $chimeric | bc -l`
 if [ -f "../merged/$sample-trl_summary_brkpt_freq.csv" ]
 then
   sumtrl=`echo $sumtrl + $numtrl | bc -l`
@@ -114,6 +117,7 @@ printf "\t\t\t\t<td>%.2f%%</td>\n" `echo $sumaligned/$sumunique*100 | bc -l`
 printf "\t\t\t\t<td>%.0f</td>\n" `echo $summtc/$n | bc -l`
 printf "\t\t\t\t<td>%.2f%%</td>\n" `echo $sum30x/$n*100 | bc -l`
 printf "\t\t\t\t<td>%.2f%%</td>\n" `echo $sum100x/$n*100 | bc -l`
+printf "\t\t\t\t<td>%.2f%%</td>\n" `echo $sumchimeric/$n*100 | bc -l`
 echo -e '\t\t\t\t<td>&nbsp;</td>'
 echo -e '\t\t\t\t<td>&nbsp;</td>'
 printf "\t\t\t\t<td>%.2f</td>\n" `echo "($sumtrl-$n)/$n" | bc -l`
