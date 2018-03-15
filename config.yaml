@@ -11,7 +11,7 @@ filters:
     novoscore: 4         #minimal novobreak QUAL score
     gridssscore: 450     #minimal gridss QUAL score
     highSVevidence: 7   #minimal amount of split reads and discordant reads required for structural variants to be called High evidence
-    blacklist: code/blacklist.bed         #blacklist in bedfile format
+    blacklist: code/180307-blacklist.bed         #blacklist in bedfile format
 
 gridss:
     GRIDSS_JAR: /net/nfs/PAT/home/tjitske/GRIDSS/gridss-1.4.2-jar-with-dependencies.jar
