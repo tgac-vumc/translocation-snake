@@ -1,9 +1,9 @@
 configfile: "config.yaml"
 from snakemake.utils import report
 SAMPLES, = glob_wildcards("../bam/{sample}_coordsorted.bam")
-'''
-SAMPLES = ['DLBCL-27_S38_L003', 'DLBCL-90_S20_L001', 'DLBCL-20_S14_L002', 'DLBCL-122_S3', 'DLBCL-110_S34_L002', 'DLBCL-218_S76_L006', 'DLBCL-8_S8_L002', 'DLBCL-205_S79_L006', 'DLBCL-140_S35_L007', '10-028416_S66_L004', 'DLBCL-155_S41_L007', 'DLBCL-15_S22_L002', 'DLBCL-198_S52_L005', 'DLBCL-175_S32_L004', 'DLBCL-183_S64_L005', 'DLBCL-144_S27_L007', 'DLBCL-181_S44_L005', 'DLBCL-37_S32_L003', 'HE11-033749_S49_L003', 'DLBCL-139_S44_L007', 'DLBCL-171_S38_L004', 'DLBCL-215_S73_L006', 'T02-8834_S67_L004', 'DLBCL-182_S51_L005', 'DLBCL-159_S33_L007', 'DLBCL-209_S66_L006', 'DLBCL-56_S67', 'DLBCL-82_S9_L001', 'DLBCL-229_S85_L007', 'DLBCL-72A_S77', 'DLBCL-199_S62_L005', 'DLBCL-94_S12_L001', 'DLBCL-85_S10_L001', 'DLBCL-75_S76', 'DLBCL-97_S18_L001', 'DLBCL-123_S2', 'T10-10171_S33_L002', 'DLBCL-147_S28_L007', 'DLBCL-156_S39_L007', 'DLBCL-104_S27_L002', 'DLBCL-126_S20', 'DLBCL-190_S42_L005', 'DLBCL-233_S96_L007', 'DLBCL-84_S5_L001', 'DLBCL-112_S33_L002', '10-032737_S69_L004', 'DLBCL-131_S18', 'DLBCL-99_S13_L001', 'DLBCL-193_S55_L005', 'DLBCL-212_S70_L006', 'DLBCL-125_S21', 'DLBCL-107_S25_L002', 'DLBCL-92_S3_L001', 'DLBCL-18_S24_L002', 'DLBCL-116_S5', 'DLBCL-150_S38_L007', 'DLBCL-226_S92_L007', 'DLBCL-214_S77_L006', 'T09-23317_S64_L004', 'DLBCL-211_S69_L006', 'DLBCL-188_S59_L005', 'DLBCL-3_S3_L002', 'DLBCL-21_S5_L002', 'DLBCL-225_S95_L007', 'DLBCL-240_S98_L008', 'DLBCL-77_S75', 'DLBCL-22_S1_L002', '11-103151_S63_L004', 'DLBCL-141_S31_L007', 'DLBCL-138_S14', '11-104529_S48_L003', 'DLBCL-164_S41_L007', 'DLBCL-184_S63_L005', 'DLBCL-145_S30_L007', 'RH10-015545_S31_L002', 'DLBCL-113_S32_L002', 'DLBCL-87_S15_L001', 'DLBCL-133_S15', 'DLBCL-180_S33_L004', 'T10-14373_S52_L003', '11-101255_S44_L003', 'DLBCL-231_S86_L007', 'DLBCL-47_S36_L003', 'DLBCL-236_S97_L007', 'DLBCL-239_S102_L008', 'DLBCL-222_S90_L007', 'RH09-035008_S24_L002', 'DLBCL-120_S9', 'DLBCL-70_S72', 'DLBCL-42_S31_L003', 'DLBCL-9_S23_L002', 'DLBCL-13_S17_L002', 'DLBCL-143_S29_L007', 'DLBCL-223_S89_L007']
-'''
+
+targetregionnumber=['{:02d}'.format(item) for item in list(range(config['ALL']['THREADS']))]
+
 
 rule all:
     input:
@@ -138,16 +138,31 @@ rule reorder_novobreak:
     script:
         '{input.script}'
 
+rule create_targetfiles:
+	input:
+		config['breakmer']['targets_bed_file']
+	output:
+		temp(expand("../breakmer/{{sample}}/targetregions-{number}",number=targetregionnumber))
+	params:
+		threads=config["ALL"]["THREADS"],
+		output="../breakmer/{sample}/targetregions-"
+	shell:
+		'split -d -n l/{params.threads} {input} {params.output}'
+
+
+
+
 rule create_config_breakmer:
    input:
-        bam="../bam/{sample}_coordsorted_nochr.bam"
+        bam="../bam/{sample}_coordsorted_nochr.bam",
+        targetfile="../breakmer/{sample}/targetregions-{number}"
    output:
-        config="../breakmer/{sample}/{sample}.cfg"
+        config="../breakmer/{sample}/{number}/{sample}-{number}.cfg"
         #"../breakmer/Breakmer_output/{sample}_BCNHL_Seq_V2_allTRL_svs.out"
    params:
-        targets_bed=config["breakmer"]["targets_bed_file"],
+        targets_bed="../breakmer/{sample}/targetregions-{number}",
         #analysis_name="{sample}"+config["breakmer"]["analysis_name"],
-        analysis_name="{sample}_BCNHL_Seq_V2_allTRL",
+        analysis_name="{sample}_BCNHL_Seq_V2_allTRL-{number}",
 	    refdir=config["breakmer"]["reference_data_dir"],
         cutadapt_config=config["breakmer"]["cutadapt_config_file"],
         cutadapt=config["breakmer"]["cutadapt"],
@@ -159,7 +174,7 @@ rule create_config_breakmer:
       'echo "analysis_name={params.analysis_name} \n\
 targets_bed_file={params.targets_bed} \n\
 sample_bam_file={input.bam} \n\
-analysis_dir=../breakmer/{wildcards.sample} \n\
+analysis_dir=../breakmer/{wildcards.sample}/{wildcards.number} \n\
 reference_data_dir={params.refdir} \n\
 cutadapt_config_file={params.cutadapt_config} \n\
 cutadapt={params.cutadapt} \n\
@@ -176,16 +191,28 @@ kmer_size={params.kmer}\
 rule run_breakmer:
     input:
         bam="../bam/{sample}_coordsorted_nochr.bam",
-        config="../breakmer/{sample}/{sample}.cfg",
+        config="../breakmer/{sample}/{number}/{sample}-{number}.cfg",
+        targetfile="../breakmer/{sample}/targetregions-{number}",
     output:
-         out="../breakmer/Breakmer_output/{sample}_BCNHL_Seq_V2_allTRL_svs.out"
+         out="../breakmer/Breakmer_output/{sample}_BCNHL_Seq_V2_allTRL-{number}_svs.out"
     params:
         breakmer=config["breakmer"]["BREAKMER"],
          #analysis_name="{sample}"+config["breakmer"]["analysis_name"]
         analysis_name="{sample}_BCNHL_Seq_V2_allTRL"
     shell:
          "python2 {params.breakmer} run -c {input.config} ;"
-         "cp ../breakmer/{wildcards.sample}/output/{params.analysis_name}_svs.out {output.out}"
+         "cp ../breakmer/{wildcards.sample}/{wildcards.number}/output/{params.analysis_name}_svs-{wildcards.number}.out {output.out}"
+
+rule concat_breakmer:
+	input:
+		expand("../breakmer/Breakmer_output/{{sample}}_BCNHL_Seq_V2_allTRL-{number}_svs.out", number=targetregionnumber)
+	output:
+		"../breakmer/Breakmer_output/{sample}_BCNHL_Seq_V2_allTRL_svs.out",
+	params:
+		header="code/breakmer_header.txt"
+	shell:
+		'awk FNR-1 {params.header} {input} > {output} '
+
 
 rule reorder_breakmer:
     input:
