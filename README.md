@@ -34,7 +34,7 @@ unfortunately not all programs are yet available through conda the following pro
 
 - Gridss v1.4.2  https://github.com/PapenfussLab/gridss/releases
 - WHAM https://github.com/zeeev/wham
-- BreaKmer v0.0.4 https://github.com/ryanabo/BreaKmer
+- BreaKmer v0.0.4 https://github.com/ryanabo/BreaKmer/archive/v0.0.4-beta.zip
 - Novobreak v1.1.3   https://github.com/czc/nb_distribution
     For novobreak replace infer_bp_v4.pl in the novobreak installation folder with the infer_bp_v4.pl file which you can find in the bin folder.
 
@@ -62,3 +62,33 @@ Gridss, Novobreak and wham are performed by snakemake
 [source activate translocation-snake]
 
 [snakemake ]
+
+
+
+
+** installation tips/errors **
+
+- install BreaKmer
+	[wget https://github.com/ryanabo/BreaKmer/archive/v0.0.4-beta.zip]  
+	[python setup.py install --user]
+    - if error: Setup script exited with Missing required dependency NumPy (Numerical Python).   
+    	[python2 -m pip install --user NumPy]
+    - Breakmer requires Jellyfish we use https://github.com/gmarcais/Jellyfish/releases/download/v2.2.6/jellyfish-2.2.6.tar.gz
+    - error door pysam: 0.9.0
+
+    the pysam.sort() commands does not work with new versions of samtools, therefor two breakmer scripts needed to be changed:
+
+    breakmer/processor/target.py
+    	oorspronkelijk: 	pysam.sort(self.files['sv_bam'], self.files['sv_bam_sorted'].replace('.bam', ''))
+
+   	New: pysam.sort("-o", self.files['sv_bam_sorted'], self.files['sv_bam'])
+
+    breakmer/assembly/contig.py
+
+    oorspronkelijk:  pysam.sort(bam_out_fn,bam_out_sorted_fn.replace('.bam',''))
+
+    new:	pysam.sort("-o", bam_out_sorted_fn, bamOutFn)
+- installation  novobreak
+    - SSAKE need to be added to the PATH
+
+    

@@ -40,8 +40,8 @@ orderWham<-function(inputfile, output1, output2){
 	FORMAT<-unlist(strsplit(bedr$vcf[1,"FORMAT"],":"))
 
 	vcf<-bedr$vcf
-	vcf<-cSplit_f(vcf, sep=":", splitCols = 30)
-	colnames(vcf)[30:35]<-FORMAT
+	vcf<-cSplit_f(vcf, sep=":", splitCols = 28)
+	colnames(vcf)[28:33]<-FORMAT
 
 	#Create unique ID per hit
 	vcf$ID<-paste("wham",seq(1:nrow(vcf)), sep="-")
@@ -53,10 +53,11 @@ orderWham<-function(inputfile, output1, output2){
 	vcf$CHR2<-paste("chr",vcf[,CHR2], sep="")
 
 	vcf<-cSplit(vcf, sep=",", splitCols ="SP", direction = "wide") # the SP column contain "Number of reads supporting endpoint: mate-position,split-read,alternative-mapping"
-	vcf$WC<-apply(vcf,1,function(x){ifelse(x["CHROM"] != x["CHR2"],"TRL",x["WC"])})
+
+	vcf$SVTYPE<-apply(vcf,1,function(x){ifelse(x["CHROM"] != x["CHR2"],"TRL","other")})
 	vcf$QUAL<-vcf$MQ
 
-	vcf<-plyr::rename(vcf, replace=c("CHR2"="CHROM2", "END"="POS2", "NS"="SR","SP_1"="DR", "SP_2"="SR2", "WC"="SVTYPE", "RD"="BRKPT_COV" ))
+	vcf<-plyr::rename(vcf, replace=c("CHR2"="CHROM2", "END"="POS2", "NS"="SR","SP_1"="DR", "SP_2"="SR2", "RD"="BRKPT_COV" ))
 
 	#remove hits further than 300 bp outside capture areas.
 	keeplist<-apply(vcf ,1, captured)
@@ -82,7 +83,7 @@ orderWham<-function(inputfile, output1, output2){
 	vcf$TOOL<-"wham"
 	vcf<-orderSvLexo(vcf)
 
-	vcf<-vcf[,c('CHROM', 'POS', 'CHROM2','POS2','GENE','GENE2','SVTYPE','SR', 'SR2',"DR", "DR2" ,"SVLEN", "BRKPT_COV" ,"BRKPT_COV2" ,"STRAND","STRAND2",'QUAL',"ID","TOOL", "PU" , "SU" ,"CU" ,"NC" ,"MQF", "DI",  "WP" ,"NR", "NA", "SP_3" ,"GT","GL", "CISTART" ,"CIEND"  ,"CF" ,"ALT","LRT","WAF","GC","AT")]
+	vcf<-vcf[,c('CHROM', 'POS', 'CHROM2','POS2','GENE','GENE2','SVTYPE','SR', 'SR2',"DR", "DR2" ,"SVLEN", "BRKPT_COV" ,"BRKPT_COV2" ,"STRAND","STRAND2",'QUAL',"ID","TOOL", "PU" , "SU" ,"CU" ,"NC" ,"MQF", "DI", "NR", "NA", "SP_3" ,"GT","GL", "CISTART" ,"CIEND"  ,"CF" ,"ALT","LRT","WAF","GC","AT")]
 	#excluded: "REF", "FILTER" , "MQ" ,"FORMAT","DP" , because these are non infomative
 
 	vcf<-arrange(vcf,CHROM,POS,CHROM2,POS2,plyr::desc(DR),plyr::desc(DR2),plyr::desc(SR),plyr::desc(SR2))
@@ -94,7 +95,7 @@ orderWham<-function(inputfile, output1, output2){
 	write.table(vcf2, file=output2,row.names=FALSE, sep="\t")
 }
 
-orderWham(inputfile=snakemake@input[["classified"]], output1=snakemake@output[["dups"]],output2=snakemake@output[["ordered"]])
+orderWham(inputfile=snakemake@input[["vcf"]], output1=snakemake@output[["dups"]],output2=snakemake@output[["ordered"]])
 
 
 #$header$INFO

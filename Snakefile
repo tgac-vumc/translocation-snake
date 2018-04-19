@@ -1,7 +1,7 @@
 configfile: "config.yaml"
 from snakemake.utils import report
 SAMPLES, = glob_wildcards("../bam/{sample}_coordsorted.bam")
-
+shell.prefix('PATH=' + config['novobreak']['EXE_DIR'] + ':$PATH ')
 targetregionnumber=['{:02d}'.format(item) for item in list(range(config['ALL']['THREADS']))]
 
 
@@ -76,25 +76,25 @@ rule run_wham:
         " -p {params.mapqual} -q {params.basequal} "
         " -x {threads} -t {input.bam} > {output.vcf} 2> {log} "
 
-rule classify_wham:
-    input:
-        vcf="../wham/{sample}/{sample}-wham.vcf"
-    output:
-        classified="../wham/{sample}/{sample}-wham-class.vcf"
-    log:
-        "../wham/log/{sample}_class.log"
-    params:
-        TRAIN=config['wham']['TRAIN'],
-        CLASSIFY=config['wham']['CLASSIFY'],
-    threads:
-        config["ALL"]["THREADS"]
-    shell:
-        "python2 {params.CLASSIFY} --proc {threads} {input.vcf} {params.TRAIN} "
-        "> {output.classified} 2> {log} "
+#rule classify_wham:
+#    input:
+#        vcf="../wham/{sample}/{sample}-wham.vcf"
+#    output:
+#        classified="../wham/{sample}/{sample}-wham-class.vcf"
+#    log:
+#        "../wham/log/{sample}_class.log"
+#    params:
+#        TRAIN=config['wham']['TRAIN'],
+#        CLASSIFY=config['wham']['CLASSIFY'],
+#    threads:
+#        config["ALL"]["THREADS"]
+#    shell:
+#        "python2 {params.CLASSIFY} --proc {threads} {input.vcf} {params.TRAIN} "
+#        "> {output.classified} 2> {log} "
 
 rule reorder_wham:
     input:
-        classified="../wham/{sample}/{sample}-wham-class.vcf",
+        vcf="../wham/{sample}/{sample}-wham.vcf",
         script="code/reorder-wham-snake.R"
     output:
         dups="../wham/{sample}/{sample}-wham_dups.csv",
@@ -122,7 +122,7 @@ rule run_novobreak:
         config["ALL"]["THREADS"]
     shell:
         "{params.NOVOBREAK} {params.EXE_DIR} {params.REF} {input.bam} "
-        "{params.NORMAL} {threads} ../novobreak/{wildcards.sample} 2> {log} && "
+        "{params.NORMAL} {threads} ../novobreak/{wildcards.sample} &> {log} && "
         " cat {params.HEADER} ../novobreak/{wildcards.sample}/ssake/split/*.sp.vcf > {output.vcf} "
 
 rule reorder_novobreak:
@@ -148,8 +148,6 @@ rule create_targetfiles:
 		output="../breakmer/{sample}/targetregions-"
 	shell:
 		'split -d -n l/{params.threads} {input} {params.output}'
-
-
 
 
 rule create_config_breakmer:
@@ -201,7 +199,7 @@ rule run_breakmer:
         analysis_name="{sample}_BCNHL_Seq_V2_allTRL"
     shell:
          "python2 {params.breakmer} run -c {input.config} ;"
-         "cp ../breakmer/{wildcards.sample}/{wildcards.number}/output/{params.analysis_name}_svs-{wildcards.number}.out {output.out}"
+         "cp ../breakmer/{wildcards.sample}/{wildcards.number}/output/{params.analysis_name}-{wildcards.number}_svs.out {output.out}"
 
 rule concat_breakmer:
 	input:
