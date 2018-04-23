@@ -27,7 +27,6 @@ dependencies:
   - r-gtools
   - r-survival
   - r-ggplot2
-  - r-bedr
   - bioconductor-qdnaseq=1.10.0
   - bioconductor-biomart
   - bioconductor-VariantAnnotation
@@ -37,3 +36,4 @@ dependencies:
   - bioconductor-org.Hs.eg.db
   - perl-bioperl
   - perl-dbd-mysql
+  - pysam

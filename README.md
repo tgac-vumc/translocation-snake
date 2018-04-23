@@ -37,7 +37,7 @@ unfortunately not all programs are yet available through conda the following pro
 - BreaKmer v0.0.4 https://github.com/ryanabo/BreaKmer/archive/v0.0.4-beta.zip
 - Novobreak v1.1.3   https://github.com/czc/nb_distribution
     For novobreak replace infer_bp_v4.pl in the novobreak installation folder with the infer_bp_v4.pl file which you can find in the bin folder.
-- R package StructuralVariantAnnotation
+- R package StructuralVariantAnnotation and bedr aren't available in conda and need to be installed within R:
 
  ```
 source activate translocation-snake
@@ -46,6 +46,8 @@ R
 library(devtools)
 options(unzip = 'internal')
 install_github("PapenfussLab/StructuralVariantAnnotation"
+install.packages("bedr")
+
 q()
  ```
 **Input file creation**
