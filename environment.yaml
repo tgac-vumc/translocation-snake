@@ -37,3 +37,4 @@ dependencies:
   - bioconductor-org.Hs.eg.db
   - perl-bioperl
   - perl-dbd-mysql
+  - pysam
