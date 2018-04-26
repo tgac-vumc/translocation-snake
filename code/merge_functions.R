@@ -38,7 +38,7 @@
           df$EVENT[same_event]<-event
         }else{df$EVENT[same_event]<-event}
       }
-    }
+    }else{df$EVENT<-1}
   return(df$EVENT)
   }
 
@@ -53,6 +53,11 @@ newdf<-df
   return(newdf)
 }
 
+CalculateVAF<-function(df){
+  df$VAF<-round(df$SR/df$BRKPT_COV*100, digits=1)
+  df$VAF2<-round(df$SR2/df$BRKPT_COV2*100, digits=1)
+return(df)
+}
 
  # Annotate if there is a hign level of evidence for a translocation based on discordant and split reads.
  Evidence<-function(df, highSVevidence){
@@ -62,6 +67,12 @@ newdf<-df
  	return(df)
  }
 
+ Create_bed<-function(df){
+   bed<-data.frame(chr=df$CHROM, start=df$POS-2, stop=df$POS+2)
+   bed2<-data.frame(chr=df$CHROM2, start=df$POS2-2, stop=df$POS2+2)
+   combinedbed<-rbind(bed, bed2)
+   return(combinedbed)
+ }
 
  #########################################################
  #               Filter functions for the 4 tools        #
@@ -106,18 +117,21 @@ newdf<-df
 
  #function to find out if event is translocation or High evidence other event
  otherSV<-function(df){
-
- 	!(df$SVTYPE == "TRL" | df$EVIDENCE_LEVEL == "HIGH")
-
+ 	!(df$SVTYPE == "TRL")
+ }
+ 
+ tra_otherSV_HIGH<-function(df){
+   (df$SVTYPE == "TRL" | df$EVIDENCE_LEVEL == "HIGH")
  }
 
  #function to keep only one line per event with highest level of evidence
  Summarize<-function(df){
  	df<-arrange(df,EVENT, EVIDENCE_LEVEL,plyr::desc(DR),plyr::desc(DR2),plyr::desc(SR),plyr::desc(SR2))
- 	occurence<-count(df$EVENT)
- 	df$OCCURENCE<-occurence[df$EVENT,"freq"]
-
+  allevents<-unique(df$EVENT)
+  for(i in allevents){
+    df$ALL_TOOLS[df$EVENT==i]<-paste(unique(df[df$EVENT==i,"TOOL"]),collapse=",")
+    df$OCCURENCE[df$EVENT==i]<-sum(df$EVENT==i)
+  }
  	if(nrow(df)>0){df$TPorFP<-"TP"}else{df$TPorFP<-character()} #this column is used to exclude rows from circlize plot if they are marked as FP
-
  	summarydf<-df[!duplicated(df$EVENT),]
  }

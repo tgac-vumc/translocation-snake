@@ -37,10 +37,19 @@ unfortunately not all programs are yet available through conda the following pro
 - BreaKmer v0.0.4 https://github.com/ryanabo/BreaKmer/archive/v0.0.4-beta.zip
 - Novobreak v1.1.3   https://github.com/czc/nb_distribution
     For novobreak replace infer_bp_v4.pl in the novobreak installation folder with the infer_bp_v4.pl file which you can find in the bin folder.
+- R package StructuralVariantAnnotation and bedr aren't available in conda and need to be installed within R:
 
+ ```
+source activate translocation-snake
+R
 
+library(devtools)
+options(unzip = 'internal')
+install_github("PapenfussLab/StructuralVariantAnnotation"
+install.packages("bedr")
 
-
+q()
+ ```
 **Input file creation**
 
 Pipeline is tested on paired-end ilumina data processed as follow:
@@ -88,3 +97,6 @@ Gridss, Novobreak and wham are performed by snakemake
     oorspronkelijk:  pysam.sort(bam_out_fn,bam_out_sorted_fn.replace('.bam',''))
 
     new:	pysam.sort("-o", bam_out_sorted_fn, bamOutFn)
+- installation  novobreak
+    - SSAKE need to be added to the PATH
+	- PATH=$PATH:path/to/novobreak/dir

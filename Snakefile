@@ -1,14 +1,15 @@
 configfile: "config.yaml"
 from snakemake.utils import report
 SAMPLES, = glob_wildcards("../bam/{sample}_coordsorted.bam")
-#SAMPLES = ["",""]
+targetregionnumber=['{:02d}'.format(item) for item in list(range(config['ALL']['THREADS']))]
+
 
 rule all:
     input:
-        #expand("../merged/{sample}-trl_merged.csv",sample=SAMPLES),
         expand("../reports/{sample}-report.html",sample=SAMPLES),
-        #expand("../reports/{sample}-circlize.png",sample=SAMPLES),
-	    #expand("../breakmer/{sample}/{sample}.cfg", sample=SAMPLES)
+        #expand("../merged/{sample}-trl_summary_brkpt_freq.csv",sample=SAMPLES),
+        "../reports/circlize/index.html",
+        "../reports/summary.html"
 
 rule run_gridss:
     input:
@@ -20,9 +21,9 @@ rule run_gridss:
     params:
         GRIDSS_JAR=config['gridss']['GRIDSS_JAR'],
         DIR="../gridss/{sample}/",
-        ref=config['all']['REF_CHR'],
+        ref=config['ALL']['REF_CHR'],
         assembly="../gridss/{sample}/{sample}-gridss.assembly.bam"
-    threads:config["all"]["THREADS"]
+    threads:config["ALL"]["THREADS"]
     shell:
         "(java -ea -Xmx31g "
         "-Dsamjdk.create_index=true "
@@ -47,10 +48,10 @@ rule reorder_gridss:
         dups="../gridss/{sample}/{sample}-gridss_dups.csv",
         ordered="../gridss/{sample}/{sample}-gridss_ordered.csv"
     params:
-        Annotationfile=config['all']["Annotationfile"],
-        targets=config['all']['targets']
+        Annotationfile=config['ALL']["Annotationfile"],
+        targets=config['ALL']['targets']
     script:
-        'code/reorder-gridss-snake.R'
+        '{input.script}'
 
 rule run_wham:
     input:
@@ -61,44 +62,28 @@ rule run_wham:
         "../wham/log/{sample}.log"
     params:
         WHAM=config['wham']['WHAM'],
-        ref=config['all']['REF_NOCHR'],
+        ref=config['ALL']['REF_NOCHR'],
         mapqual=config['wham']['MAPQUAL'],
         basequal=config['wham']['BASEQUAL']
     threads:
-        config["all"]["THREADS"]
+        config["ALL"]["THREADS"]
     shell:
         " {params.WHAM} -f {params.ref} "
         " -p {params.mapqual} -q {params.basequal} "
         " -x {threads} -t {input.bam} > {output.vcf} 2> {log} "
 
-rule classify_wham:
-    input:
-        vcf="../wham/{sample}/{sample}-wham.vcf"
-    output:
-        classified="../wham/{sample}/{sample}-wham-class.vcf"
-    log:
-        "../wham/log/{sample}_class.log"
-    params:
-        TRAIN=config['wham']['TRAIN'],
-        CLASSIFY=config['wham']['CLASSIFY'],
-    threads:
-        config["all"]["THREADS"]
-    shell:
-        "python2 {params.CLASSIFY} --proc {threads} {input.vcf} {params.TRAIN} "
-        "> {output.classified} 2> {log} "
-
 rule reorder_wham:
     input:
-        classified="../wham/{sample}/{sample}-wham-class.vcf",
+        vcf="../wham/{sample}/{sample}-wham.vcf",
         script="code/reorder-wham-snake.R"
     output:
         dups="../wham/{sample}/{sample}-wham_dups.csv",
         ordered="../wham/{sample}/{sample}-wham_ordered.csv"
     params:
-        Annotationfile=config['all']["Annotationfile"],
-        targets=config['all']['targets']
+        Annotationfile=config['ALL']["Annotationfile"],
+        targets=config['ALL']['targets']
     script:
-        'code/reorder-wham-snake.R'
+        '{input.script}'
 
 rule run_novobreak:
     input:
@@ -111,13 +96,13 @@ rule run_novobreak:
         NOVOBREAK=config['novobreak']['NOVOBREAK'],
         NORMAL=config['novobreak']['NORMAL'],
         EXE_DIR=config['novobreak']['EXE_DIR'],
-        REF=config["all"]["REF_NOCHR"],
+        REF=config["ALL"]["REF_NOCHR"],
         HEADER=config["novobreak"]["HEADER"]
     threads:
-        config["all"]["THREADS"]
+        config["ALL"]["THREADS"]
     shell:
         "{params.NOVOBREAK} {params.EXE_DIR} {params.REF} {input.bam} "
-        "{params.NORMAL} {threads} ../novobreak/{wildcards.sample} 2> {log} ; "
+        "{params.NORMAL} {threads} ../novobreak/{wildcards.sample} &> {log} && "
         " cat {params.HEADER} ../novobreak/{wildcards.sample}/ssake/split/*.sp.vcf > {output.vcf} "
 
 rule reorder_novobreak:
@@ -128,33 +113,46 @@ rule reorder_novobreak:
         dups="../novobreak/{sample}/{sample}-novobreak_dups.csv",
         ordered="../novobreak/{sample}/{sample}-novobreak_ordered.csv"
     params:
-        Annotationfile=config['all']["Annotationfile"],
-        targets=config['all']['targets']
+        Annotationfile=config['ALL']["Annotationfile"],
+        targets=config['ALL']['targets']
     script:
-        'code/reorder-novobreak-snake.R'
+        '{input.script}'
+
+rule create_targetfiles:
+	input:
+		config['breakmer']['targets_bed_file']
+	output:
+		temp(expand("../breakmer/{{sample}}/targetregions-{number}",number=targetregionnumber))
+	params:
+		threads=config["ALL"]["THREADS"],
+		output="../breakmer/{sample}/targetregions-"
+	shell:
+		'split -d -n l/{params.threads} {input} {params.output}'
+
 
 rule create_config_breakmer:
    input:
-        bam="../bam/{sample}_coordsorted_nochr.bam"
+        bam="../bam/{sample}_coordsorted_nochr.bam",
+        targetfile="../breakmer/{sample}/targetregions-{number}"
    output:
-        config="../breakmer/{sample}/{sample}.cfg"
+        config="../breakmer/{sample}/{number}/{sample}-{number}.cfg"
         #"../breakmer/Breakmer_output/{sample}_BCNHL_Seq_V2_allTRL_svs.out"
    params:
-        targets_bed=config["breakmer"]["targets_bed_file"],
+        targets_bed="../breakmer/{sample}/targetregions-{number}",
         #analysis_name="{sample}"+config["breakmer"]["analysis_name"],
-        analysis_name="{sample}_BCNHL_Seq_V2_allTRL",
+        analysis_name="{sample}_BCNHL_Seq_V2_allTRL-{number}",
 	    refdir=config["breakmer"]["reference_data_dir"],
         cutadapt_config=config["breakmer"]["cutadapt_config_file"],
         cutadapt=config["breakmer"]["cutadapt"],
 	    jellyfish=config["breakmer"]["jellyfish"],
-	    ref=config["all"]["REF_NOCHR"],
+	    ref=config["ALL"]["REF_NOCHR"],
         annotation=config["breakmer"]["gene_annotation_file"],
         kmer=config["breakmer"]["kmer_size"]
    shell:
       'echo "analysis_name={params.analysis_name} \n\
 targets_bed_file={params.targets_bed} \n\
 sample_bam_file={input.bam} \n\
-analysis_dir=../breakmer/{wildcards.sample} \n\
+analysis_dir=../breakmer/{wildcards.sample}/{wildcards.number} \n\
 reference_data_dir={params.refdir} \n\
 cutadapt_config_file={params.cutadapt_config} \n\
 cutadapt={params.cutadapt} \n\
@@ -171,16 +169,28 @@ kmer_size={params.kmer}\
 rule run_breakmer:
     input:
         bam="../bam/{sample}_coordsorted_nochr.bam",
-        config="../breakmer/{sample}/{sample}.cfg",
+        config="../breakmer/{sample}/{number}/{sample}-{number}.cfg",
+        targetfile="../breakmer/{sample}/targetregions-{number}",
     output:
-         out="../breakmer/Breakmer_output/{sample}_BCNHL_Seq_V2_allTRL_svs.out"
+         out="../breakmer/Breakmer_output/{sample}_BCNHL_Seq_V2_allTRL-{number}_svs.out"
     params:
         breakmer=config["breakmer"]["BREAKMER"],
          #analysis_name="{sample}"+config["breakmer"]["analysis_name"]
         analysis_name="{sample}_BCNHL_Seq_V2_allTRL"
     shell:
          "python2 {params.breakmer} run -c {input.config} ;"
-         "cp ../breakmer/{wildcards.sample}/output/{params.analysis_name}_svs.out {output.out}"
+         "cp ../breakmer/{wildcards.sample}/{wildcards.number}/output/{params.analysis_name}-{wildcards.number}_svs.out {output.out}"
+
+rule concat_breakmer:
+	input:
+		expand("../breakmer/Breakmer_output/{{sample}}_BCNHL_Seq_V2_allTRL-{number}_svs.out", number=targetregionnumber)
+	output:
+		"../breakmer/Breakmer_output/{sample}_BCNHL_Seq_V2_allTRL_svs.out",
+	params:
+		header="code/breakmer_header.txt"
+	shell:
+		'awk FNR-1 {params.header} {input} > {output} '
+
 
 rule reorder_breakmer:
     input:
@@ -191,9 +201,9 @@ rule reorder_breakmer:
         ordered="../breakmer/{sample}/{sample}-breakmer_ordered.csv",
         complexe="../breakmer/{sample}/{sample}-breakmer_complex.csv"
     params:
-        Annotationfile=config['all']["Annotationfile"]
+        Annotationfile=config['ALL']["Annotationfile"]
     script:
-        'code/reorder-breakmer004-snake.R'
+        '{input.script}'
 
 rule merge_svtools:
     input:
@@ -206,14 +216,34 @@ rule merge_svtools:
         trl="../merged/{sample}-trl_merged.csv",
         IG="../merged/{sample}-IG_merged.csv",
         otherSVs="../merged/{sample}-other_merged.csv",
-        summary="../merged/{sample}-trl_summary.csv"
+        summary="../merged/{sample}-trl_summary.csv",
+        bedfile="../merged/{sample}-trl.bed"
     script:
-        'code/merge-svtools-snake.R'
+        '{input.script}'
+
+rule obtain_breakpoint_cov:
+    input:
+        bedfile="../merged/{sample}-trl.bed",
+        bam="../bam/{sample}_coordsorted.bam"
+    output:
+        cov="../merged/{sample}-trl_cov.txt"
+    shell:
+        'samtools view -b -L {input.bedfile} -F 0x400 {input.bam} | bedtools coverage -d -b stdin -a {input.bedfile} > {output.cov}'
+
+rule Calculate_brkpt_freq:
+    input:
+    	summary=temp("../merged/{sample}-trl_summary.csv"),
+        cov="../merged/{sample}-trl_cov.txt",
+        script='code/calculate_brkpt_freq.R'
+    output:
+        brkpt_freq="../merged/{sample}-trl_summary_brkpt_freq.csv"
+    script:
+        '{input.script}'
 
 rule report:
     input:
-        summary="../merged/{sample}-trl_summary.csv",
-        circlize="../reports/{sample}-circlize.png",
+        summary="../merged/{sample}-trl_summary_brkpt_freq.csv",
+        circlize="../reports/circlize/{sample}-circlize.png",
         translocations="../merged/{sample}-trl_merged.csv",
         IG_rearrangments="../merged/{sample}-IG_merged.csv",
         otherSVs_low_evidence="../merged/{sample}-other_merged.csv"
@@ -245,12 +275,63 @@ rule report:
 
         """, output[0], **input)
 
+rule summary:
+    input:
+        script='code/summary.sh',
+        break_freq=expand("../merged/{sample}-trl_summary_brkpt_freq.csv", sample=SAMPLES),
+    output:
+        "../reports/summary.html"
+    params:
+        bamfolder="../bam/'*'_coordsorted.bam",
+    shell:
+        "{input.script} Translocations {params.bamfolder} > {output}"
 
 rule circlize:
     input:
-        summary="../merged/{sample}-trl_summary.csv",
+        summary="../merged/{sample}-trl_summary_brkpt_freq.csv",
         script="code/circlize.R"
     output:
-        circlize="../reports/{sample}-circlize.png"
+        circlize="../reports/circlize/{sample}-circlize.png"
     script:
-        'code/circlize.R'
+        '{input.script}'
+
+rule lightBox_circlize:
+    input:
+        circlize=expand("../reports/circlize/{sample}-circlize.png", sample=SAMPLES),
+        script='code/createLightBox.sh',
+    output:
+        index="../reports/circlize/index.html",
+    params:
+        profiles="../reports/circlize/",
+        lb2dir="lb2/",
+    shell:
+        "{input.script} {params.profiles} {params.lb2dir} > {output.index}"
+
+
+# rule Covmetrics:
+#     input:
+#         script1='code/splitHSmetrics.sh',
+#         script2='code/c'
+#         hsmetrics="../Covmetrics/{sample}_HSmetrics.txt",
+#         perTargetCov="../Covmetrics/{sample}_PerTargetCov.txt",
+#     output:
+#         HsMetrics="../Covmetrics/{sample}_HsMetrics.txt",
+#         histogram="../Covmetrics/{sample}_CovHisto.txt"
+#     shell:
+#         ""
+
+#rule classify_wham:
+#    input:
+#        vcf="../wham/{sample}/{sample}-wham.vcf"
+#    output:
+#        classified="../wham/{sample}/{sample}-wham-class.vcf"
+#    log:
+#        "../wham/log/{sample}_class.log"
+#    params:
+#        TRAIN=config['wham']['TRAIN'],
+#        CLASSIFY=config['wham']['CLASSIFY'],
+#    threads:
+#        config["ALL"]["THREADS"]
+#    shell:
+#        "python2 {params.CLASSIFY} --proc {threads} {input.vcf} {params.TRAIN} "
+#        "> {output.classified} 2> {log} "

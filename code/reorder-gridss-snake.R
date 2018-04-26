@@ -65,6 +65,11 @@ orderGridss <- function(inputfile, output1, output2) {
 	#remove header information.
 	df<-bedr[[2]]
 
+	if(length(grep("chr", df[1,"CHROM"]))== 0){
+	#add chromosome prefix
+	df$CHROM<-paste("chr",df[,"CHROM"], sep="")
+	}
+
 	df<-data.frame(df, info(vcf)[,c("SIMPLE_TYPE", "svlen", "GENE","STRAND")])
 
 	df<-getPair(df)

@@ -24,47 +24,6 @@ suppressMessages(library(plyr))
 Annotationfile<-snakemake@params[["Annotationfile"]]  # contain annotations of areas in genome that are in capturepanel BCNHLv2.
 Annotations<-read.delim(Annotationfile, stringsAsFactors = FALSE, sep = "\t" , header=FALSE ) # V1=chr V2=start V3=stop V4=name
 
-#########################################################
-#   Functions to annotate genes, calculate length and split columns		#
-#########################################################
-#
-# split_columns<-function(df){
-# 	#Split the split read count column into separate columns and place them at the end of the datatable
-# 	df<-cSplit_f(df, c("split_read_count", "strands"), sep=",")
-#
-# 	#Split the breakpoint positions and genes in seperate colums
-# 	df<-cSplit_f(df, "target_breakpoints", sep="," )
-# 	df<-cSplit_f(df, c("target_breakpoints_1", "target_breakpoints_2"), sep=":" )
-# 	df<-cSplit(df, c("genes","breakpoint_coverages"), sep=",")
-# 	return(df)
-# }
-
-# #Calculate the length of the structural variant
-# svlen<-function(df){
-# 	svlen<-rep(NA_character_, nrow(df))
-# 	len<-abs(as.numeric(df$POS)-as.numeric(df$POS2))
-# 	svlen[df$CHROM == df$CHROM2]<-len[df$CHROM == df$CHROM2]
-# 	return(svlen)
-# }
-
-# annotate_specific<-function(row){
-# 	gene<-which(row[1]==Annotations$V1 & as.numeric(row[2]) > Annotations$V2 & as.numeric(row[2]) <= Annotations$V3)
-# 	ifelse(length(gene)!=0,Annotations$V4[gene],row[3])
-# }
-
-#########################################################
-#            Function to sort lexographically           #
-#########################################################
-#
-# orderSvLexo<-function(df){
-# 	#sort CHROM 1 and 2 lexographically, turn columns around if order need to be changed
-# 		df[df$CHROM > df$CHROM2, c("CHROM", 'POS', 'CHROM2','POS2', 'GENE','GENE2', 'SR','SR2',"DR","DR2","STRAND","STRAND2", "BRKPT_COV","BRKPT_COV2" )]<-df[df$CHROM > df$CHROM2, c('CHROM2','POS2', "CHROM",'POS','GENE2','GENE','SR2','SR',"DR2","DR","STRAND2","STRAND","BRKPT_COV2", "BRKPT_COV")]
-#
-# 	#sort on position if chrom 1 and 2 are equal, turn columns around if order need to be changed.
-# 		df[df$CHROM == df$CHROM2 & df$POS > df$POS2, c("CHROM", 'POS', 'CHROM2','POS2', 'GENE','GENE2', 'SR','SR2',"DR","DR2", "BRKPT_COV","BRKPT_COV2", "STRAND","STRAND2")]<-df[df$CHROM == df$CHROM2 & df$POS > df$POS2, c('CHROM2','POS2', "CHROM",'POS','GENE2','GENE','SR2','SR',"DR2","DR","BRKPT_COV2", "BRKPT_COV", "STRAND2","STRAND")]
-# 	return(df)
-# }
-
 #####################################################
 #   Main Order BreaKmer functions					#
 #####################################################
@@ -93,9 +52,10 @@ orderBreakmer<-function(inputfile, output1, output2, output3){
 	ssv$GENE<-apply(ssv[,c("CHROM","POS","GENE")],1,annotate_specific)
 	ssv$GENE2<-apply(ssv[,c("CHROM2","POS2","GENE2")],1,annotate_specific)
 
+	if(length(grep("chr", ssv[1,"CHROM"]))== 0){
 	ssv$CHROM<-paste("chr",ssv[,CHROM], sep="")
 	ssv$CHROM2<-paste("chr",ssv[,CHROM2], sep="")
-
+	}
 	#Change naming of svtypes
 	ssv$SVTYPE<-revalue(ssv$SVTYPE, replace = c("trl"="TRL","tandem_dup"="DUP","None"="UNKNOWN","inversion"="INV"))
 
@@ -122,20 +82,20 @@ orderBreakmer<-function(inputfile, output1, output2, output3){
 #########################################################################
 	complex_rearrangements<-input[grepl("-",input$target_breakpoints),]
 
-	complex_rearrangements<-cSplit(complex_rearrangements, c("split_read_count"), sep=",")
+	if(nrow(complex_rearrangements)!= 0){complex_rearrangements<-cSplit(complex_rearrangements, c("split_read_count"), sep=",")
 
 #Reorder the results on structural variant subtype, discordant read count and split read count
-	if(length(complex_rearrangements)>20) {
-  	complex_rearrangements<-arrange(complex_rearrangements,desc(sv_subtype), desc(disc_read_count), desc(split_read_count_01),desc(split_read_count_02), desc(split_read_count_03), desc(split_read_count_04))
-	} else {
-		complex_rearrangements<-arrange(complex_rearrangements,desc(sv_subtype), desc(disc_read_count), desc(split_read_count_1), desc(split_read_count_2), desc(split_read_count_3), desc(split_read_count_4))
-	}
+  	if(length(complex_rearrangements)>20) {
+     	complex_rearrangements<-arrange(complex_rearrangements,desc(sv_subtype), desc(disc_read_count), desc(split_read_count_01),desc(split_read_count_02), desc(split_read_count_03), desc(split_read_count_04))
+  	} else {
+	  	complex_rearrangements<-arrange(complex_rearrangements,desc(sv_subtype), desc(disc_read_count), desc(split_read_count_1), desc(split_read_count_2), desc(split_read_count_3), desc(split_read_count_4))
+	  }
 
-	SRnames<-names(complex_rearrangements)
-	SRnames<-SRnames[grep("split_read_count",names(complex_rearrangements))]
+	  SRnames<-names(complex_rearrangements)
+	  SRnames<-SRnames[grep("split_read_count",names(complex_rearrangements))]
 
-	complex_rearrangements<-complex_rearrangements[,c('target_breakpoints','genes','sv_subtype',SRnames,'disc_read_count', 'breakpoint_coverages', 'total_matching', 'mismatches', 'strands', 'contig_id', 'contig_seq'),with=FALSE]
-
+	  complex_rearrangements<-complex_rearrangements[,c('target_breakpoints','genes','sv_subtype',SRnames,'disc_read_count', 'breakpoint_coverages', 'total_matching', 'mismatches', 'strands', 'contig_id', 'contig_seq'),with=FALSE]
+  }
 	write.table(complex_rearrangements, file=output3, sep="\t",row.names=FALSE)
 }
 

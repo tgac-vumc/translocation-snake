@@ -23,6 +23,7 @@ output=snakemake@output[['trl']]
 output2=snakemake@output[['IG']]
 output3=snakemake@output[['otherSVs']]
 summary=snakemake@output[['summary']]
+bedfile=snakemake@output[['bedfile']]
 highSVevidence=snakemake@config[["filters"]][["highSVevidence"]]
 splitread=snakemake@config[["filters"]][["splitread"]]
 discread=snakemake@config[["filters"]][["discread"]]
@@ -32,7 +33,7 @@ gridssscore=snakemake@config[["filters"]][["gridssscore"]]
 #               merge all SVs from the four tools       #
 #########################################################
 
-merge_SVs<-function(whamfile,gridssfile,novofile,breakmerfile, output, output2,output3,summary,highSVevidence, splitread, discread,novoscore,gridssscore){
+merge_SVs<-function(whamfile,gridssfile,novofile,breakmerfile, output, output2,output3,summary,bedfile,highSVevidence, splitread, discread,novoscore,gridssscore){
 
 	wham<-read.delim(whamfile, stringsAsFactors = F)
 	gridss<-read.delim(gridssfile, stringsAsFactors = F)
@@ -68,12 +69,14 @@ merge_SVs<-function(whamfile,gridssfile,novofile,breakmerfile, output, output2,o
 
 	df2<-Evidence(df2,highSVevidence)
 
+	df2<-CalculateVAF(df2)
+
 	IG<-df2[(grepl("^IG",df2$GENE)&grepl("^IG",df2$GENE2)),]
 	df4<-df2[!(grepl("^IG",df2$GENE)&grepl("^IG",df2$GENE2)),]
 
 	#remove medium and low evidence insertions, deletions, inversions and duplications
 	df5<-df4[otherSV(df4),]
-	df4<-df4[!otherSV(df4),]
+	df4<-df4[tra_otherSV_HIGH(df4),]
 
 	if(nrow(df4) != 0){df4$EVENT<-Event(df4)}else{df4$EVENT<-integer()}
 	#because sometimes an event is only detected by one tool, these are removed at this step.
@@ -82,12 +85,13 @@ merge_SVs<-function(whamfile,gridssfile,novofile,breakmerfile, output, output2,o
 	summarydf<-Summarize(df4)
 	write.table(summarydf, file=summary, sep="\t", row.names=FALSE)
 
+	bed<-Create_bed(summarydf)
+	write.table(bed, file=bedfile, sep="\t", row.names=FALSE, col.names=FALSE, quote=FALSE)
 
 	if(nrow(IG) != 0){IG$EVENT<-Event(IG)}else{IG$EVENT<-integer()}
 		write.table(IG, file=output2 ,sep="\t", row.names=FALSE)
 	if(nrow(df5) != 0){df5$EVENT<-Event(df5)}else{df5$EVENT<-integer()}
 		write.table(df5, file=output3 ,sep="\t", row.names=FALSE)
-
 }
 
-merge_SVs(whamfile,gridssfile,novofile,breakmerfile, output,output2,output3,summary,highSVevidence,splitread, discread,novoscore, gridssscore)
+merge_SVs(whamfile,gridssfile,novofile,breakmerfile, output,output2,output3,summary,bedfile,highSVevidence,splitread, discread,novoscore, gridssscore)
