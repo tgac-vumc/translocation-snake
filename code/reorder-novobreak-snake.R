@@ -61,15 +61,17 @@ orderNovobreak<-function(inputfile, output1, output2){
 	#Create unique ID per hit
 	vcf$ID<-paste("novobreak",seq(1:length(vcf$ID)), sep="-")
 
-	#remove chrM - not expected to be real events.
-	vcf<-vcf[vcf$CHROM !="M" & vcf$CHR2 != "M",]
 
 	#remove weird events with higher DR counts than coverages.
 	vcf<-vcf[!(vcf$DR > vcf$BRKPT_COV & vcf$DR2 > vcf$BRKPT_COV2),]
 
+	if(length(grep("chr", vcf[1,"CHROM"]))== 0){
 	#add chromosome prefix
 	vcf$CHROM<-paste("chr",vcf[,"CHROM"], sep="")
 	vcf$CHR2<-paste("chr",vcf[,"CHR2"], sep="")
+	}
+	#remove chrM - not expected to be real events.
+	vcf<-vcf[vcf$CHROM !="chrM" & vcf$CHR2 != "chrM",]
 
 	vcf<-plyr::rename(vcf, replace= c("CHR2"="CHROM2", "END"="POS2", "CONSENSUS"="CONTIG", "QUAL"="MAPQ"))
 	vcf<-plyr::rename(vcf, replace= c("COVIDENCE"="QUAL"))

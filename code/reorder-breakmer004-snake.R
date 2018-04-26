@@ -24,47 +24,6 @@ suppressMessages(library(plyr))
 Annotationfile<-snakemake@params[["Annotationfile"]]  # contain annotations of areas in genome that are in capturepanel BCNHLv2.
 Annotations<-read.delim(Annotationfile, stringsAsFactors = FALSE, sep = "\t" , header=FALSE ) # V1=chr V2=start V3=stop V4=name
 
-#########################################################
-#   Functions to annotate genes, calculate length and split columns		#
-#########################################################
-#
-# split_columns<-function(df){
-# 	#Split the split read count column into separate columns and place them at the end of the datatable
-# 	df<-cSplit_f(df, c("split_read_count", "strands"), sep=",")
-#
-# 	#Split the breakpoint positions and genes in seperate colums
-# 	df<-cSplit_f(df, "target_breakpoints", sep="," )
-# 	df<-cSplit_f(df, c("target_breakpoints_1", "target_breakpoints_2"), sep=":" )
-# 	df<-cSplit(df, c("genes","breakpoint_coverages"), sep=",")
-# 	return(df)
-# }
-
-# #Calculate the length of the structural variant
-# svlen<-function(df){
-# 	svlen<-rep(NA_character_, nrow(df))
-# 	len<-abs(as.numeric(df$POS)-as.numeric(df$POS2))
-# 	svlen[df$CHROM == df$CHROM2]<-len[df$CHROM == df$CHROM2]
-# 	return(svlen)
-# }
-
-# annotate_specific<-function(row){
-# 	gene<-which(row[1]==Annotations$V1 & as.numeric(row[2]) > Annotations$V2 & as.numeric(row[2]) <= Annotations$V3)
-# 	ifelse(length(gene)!=0,Annotations$V4[gene],row[3])
-# }
-
-#########################################################
-#            Function to sort lexographically           #
-#########################################################
-#
-# orderSvLexo<-function(df){
-# 	#sort CHROM 1 and 2 lexographically, turn columns around if order need to be changed
-# 		df[df$CHROM > df$CHROM2, c("CHROM", 'POS', 'CHROM2','POS2', 'GENE','GENE2', 'SR','SR2',"DR","DR2","STRAND","STRAND2", "BRKPT_COV","BRKPT_COV2" )]<-df[df$CHROM > df$CHROM2, c('CHROM2','POS2', "CHROM",'POS','GENE2','GENE','SR2','SR',"DR2","DR","STRAND2","STRAND","BRKPT_COV2", "BRKPT_COV")]
-#
-# 	#sort on position if chrom 1 and 2 are equal, turn columns around if order need to be changed.
-# 		df[df$CHROM == df$CHROM2 & df$POS > df$POS2, c("CHROM", 'POS', 'CHROM2','POS2', 'GENE','GENE2', 'SR','SR2',"DR","DR2", "BRKPT_COV","BRKPT_COV2", "STRAND","STRAND2")]<-df[df$CHROM == df$CHROM2 & df$POS > df$POS2, c('CHROM2','POS2', "CHROM",'POS','GENE2','GENE','SR2','SR',"DR2","DR","BRKPT_COV2", "BRKPT_COV", "STRAND2","STRAND")]
-# 	return(df)
-# }
-
 #####################################################
 #   Main Order BreaKmer functions					#
 #####################################################
@@ -93,9 +52,10 @@ orderBreakmer<-function(inputfile, output1, output2, output3){
 	ssv$GENE<-apply(ssv[,c("CHROM","POS","GENE")],1,annotate_specific)
 	ssv$GENE2<-apply(ssv[,c("CHROM2","POS2","GENE2")],1,annotate_specific)
 
+	if(length(grep("chr", ssv[1,"CHROM"]))== 0){
 	ssv$CHROM<-paste("chr",ssv[,CHROM], sep="")
 	ssv$CHROM2<-paste("chr",ssv[,CHROM2], sep="")
-
+	}
 	#Change naming of svtypes
 	ssv$SVTYPE<-revalue(ssv$SVTYPE, replace = c("trl"="TRL","tandem_dup"="DUP","None"="UNKNOWN","inversion"="INV"))
 

@@ -1,16 +1,12 @@
 configfile: "config.yaml"
 from snakemake.utils import report
 SAMPLES, = glob_wildcards("../bam/{sample}_coordsorted.bam")
-shell.prefix('PATH=' + config['novobreak']['EXE_DIR'] + ':$PATH ')
 targetregionnumber=['{:02d}'.format(item) for item in list(range(config['ALL']['THREADS']))]
 
 
 rule all:
     input:
-        #expand("../merged/{sample}-trl_merged.csv",sample=SAMPLES),
         expand("../reports/{sample}-report.html",sample=SAMPLES),
-        #expand("../reports/{sample}-circlize.png",sample=SAMPLES),
-	    #expand("../breakmer/{sample}/{sample}.cfg", sample=SAMPLES)
         #expand("../merged/{sample}-trl_summary_brkpt_freq.csv",sample=SAMPLES),
         "../reports/circlize/index.html",
         "../reports/summary.html"
@@ -75,22 +71,6 @@ rule run_wham:
         " {params.WHAM} -f {params.ref} "
         " -p {params.mapqual} -q {params.basequal} "
         " -x {threads} -t {input.bam} > {output.vcf} 2> {log} "
-
-#rule classify_wham:
-#    input:
-#        vcf="../wham/{sample}/{sample}-wham.vcf"
-#    output:
-#        classified="../wham/{sample}/{sample}-wham-class.vcf"
-#    log:
-#        "../wham/log/{sample}_class.log"
-#    params:
-#        TRAIN=config['wham']['TRAIN'],
-#        CLASSIFY=config['wham']['CLASSIFY'],
-#    threads:
-#        config["ALL"]["THREADS"]
-#    shell:
-#        "python2 {params.CLASSIFY} --proc {threads} {input.vcf} {params.TRAIN} "
-#        "> {output.classified} 2> {log} "
 
 rule reorder_wham:
     input:
@@ -295,25 +275,10 @@ rule report:
 
         """, output[0], **input)
 
-# rule Covmetrics:
-#     input:
-#         script1='code/splitHSmetrics.sh',
-#         script2='code/c'
-#         hsmetrics="../Covmetrics/{sample}_HSmetrics.txt",
-#         perTargetCov="../Covmetrics/{sample}_PerTargetCov.txt",
-#     output:
-#         HsMetrics="../Covmetrics/{sample}_HsMetrics.txt",
-#         histogram="../Covmetrics/{sample}_CovHisto.txt"
-#     shell:
-#         ""
-
 rule summary:
     input:
-        #stats=expand("../stats/{sample}.reads.all", sample=SAMPLES.keys()),
-        #index=expand("../{{binSize}}kbp/profiles/{profiletype}/index.html", profiletype=profiletypes),
         script='code/summary.sh',
-        #qcfastq=expand("../qc-fastq/{wholename}_fastqc.html", wholename=wholenames),
-        #bamqc=expand("../qc-bam/{sample}_fastqc.html", sample=SAMPLES.keys()),
+        break_freq=expand("../merged/{sample}-trl_summary_brkpt_freq.csv", sample=SAMPLES),
     output:
         "../reports/summary.html"
     params:
@@ -341,3 +306,32 @@ rule lightBox_circlize:
         lb2dir="lb2/",
     shell:
         "{input.script} {params.profiles} {params.lb2dir} > {output.index}"
+
+
+# rule Covmetrics:
+#     input:
+#         script1='code/splitHSmetrics.sh',
+#         script2='code/c'
+#         hsmetrics="../Covmetrics/{sample}_HSmetrics.txt",
+#         perTargetCov="../Covmetrics/{sample}_PerTargetCov.txt",
+#     output:
+#         HsMetrics="../Covmetrics/{sample}_HsMetrics.txt",
+#         histogram="../Covmetrics/{sample}_CovHisto.txt"
+#     shell:
+#         ""
+
+#rule classify_wham:
+#    input:
+#        vcf="../wham/{sample}/{sample}-wham.vcf"
+#    output:
+#        classified="../wham/{sample}/{sample}-wham-class.vcf"
+#    log:
+#        "../wham/log/{sample}_class.log"
+#    params:
+#        TRAIN=config['wham']['TRAIN'],
+#        CLASSIFY=config['wham']['CLASSIFY'],
+#    threads:
+#        config["ALL"]["THREADS"]
+#    shell:
+#        "python2 {params.CLASSIFY} --proc {threads} {input.vcf} {params.TRAIN} "
+#        "> {output.classified} 2> {log} "

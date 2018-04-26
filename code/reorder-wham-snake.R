@@ -46,11 +46,13 @@ orderWham<-function(inputfile, output1, output2){
 	#Create unique ID per hit
 	vcf$ID<-paste("wham",seq(1:nrow(vcf)), sep="-")
 
+	if(length(grep("chr", vcf[1,"CHROM"]))== 0){
+	#add chromosome prefix
+	vcf$CHROM<-paste("chr",vcf[,"CHROM"], sep="")
+	vcf$CHR2<-paste("chr",vcf[,"CHR2"], sep="")
+	}
 	#remove chrM - not expected to be real events.
-	vcf<-vcf[vcf$CHROM !="M" & vcf$CHR2 != "M",]
-
-	vcf$CHROM<-paste("chr",vcf[,CHROM], sep="")
-	vcf$CHR2<-paste("chr",vcf[,CHR2], sep="")
+	vcf<-vcf[vcf$CHROM !="chrM" & vcf$CHR2 != "chrM",]
 
 	vcf<-cSplit(vcf, sep=",", splitCols ="SP", direction = "wide") # the SP column contain "Number of reads supporting endpoint: mate-position,split-read,alternative-mapping"
 
