@@ -9,13 +9,18 @@ rule all:
         expand("../reports/{sample}-report.html",sample=SAMPLES),
         #expand("../merged/{sample}-trl_summary_brkpt_freq.csv",sample=SAMPLES),
         "../reports/circlize/index.html",
-        "../reports/summary.html"
+        "../reports/summary.html",
+        #expand("../CovMetrics/{sample}_Combined_metrics.txt" , sample=SAMPLES),
+        "../CovMetrics/All_samples_Combined_metrics.txt",
 
 rule run_gridss:
     input:
         bam="../bam/{sample}_coordsorted.bam"
     output:
         vcf="../gridss/{sample}/{sample}-gridss.vcf",
+        Alignment_met="../gridss/{sample}/{sample}_coordsorted.bam.gridss.working/{sample}_coordsorted.bam.alignment_summary_metrics",
+        insert_size_metrics="../gridss/{sample}/{sample}_coordsorted.bam.gridss.working/{sample}_coordsorted.bam.insert_size_metrics",
+        sv_metrics="../gridss/{sample}/{sample}_coordsorted.bam.gridss.working/{sample}_coordsorted.bam.sv_metrics",
     log:
         "../gridss/log/{sample}.log"
     params:
@@ -239,6 +244,27 @@ rule Calculate_brkpt_freq:
         brkpt_freq="../merged/{sample}-trl_summary_brkpt_freq.csv"
     script:
         '{input.script}'
+
+rule Metrics:
+	input:
+		HSmetrics="../CovMetrics/{sample}_HSmetrics.txt",
+		Alignment_met="../gridss/{sample}/{sample}_coordsorted.bam.gridss.working/{sample}_coordsorted.bam.alignment_summary_metrics",
+		insert_size_metrics="../gridss/{sample}/{sample}_coordsorted.bam.gridss.working/{sample}_coordsorted.bam.insert_size_metrics",
+		sv_metrics="../gridss/{sample}/{sample}_coordsorted.bam.gridss.working/{sample}_coordsorted.bam.sv_metrics",
+		script="code/Combine_metrics.R",
+	output:
+		combined="../CovMetrics/{sample}_Combined_metrics.txt"
+	script:
+		'{input.script}'
+
+rule All_metrics:
+	input:
+		combined=sorted(expand("../CovMetrics/{sample}_Combined_metrics.txt", sample=SAMPLES))
+	output:
+		"../CovMetrics/All_samples_Combined_metrics.txt"
+	shell:
+		"head -1 {input.combined[0]} > {output} && tail -n +2 -q {input.combined} >> {output}"
+
 
 rule report:
     input:
