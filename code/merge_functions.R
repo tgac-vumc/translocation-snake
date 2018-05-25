@@ -107,19 +107,17 @@ return(df)
  }
 
  #Remove hits of which one of the breakpoints is located in blacklisted region.
- Blacklist<-function(df){
- 	a<-c()
- 	for(i in 1:nrow(df)){
- 		a<-c(a,sum((df[i,]$CHROM==blacklist$V1 & df[i,]$POS >= blacklist$V2 & df[i,]$POS <= blacklist$V3)|(df[i,]$CHROM2==blacklist$V1 & df[i,]$POS2 >= blacklist$V2 & df[i,]$POS2 <= blacklist$V3)))
- 	}
- 	return(a==0)
- }
+Blacklist<- function(row){
+        position1<-which(row['CHROM'] == blacklist$V1 & as.numeric(row['POS']) >=  blacklist$V2 & as.numeric(row['POS']) <=  blacklist$V3)
+        position2<-which(row['CHROM2'] == blacklist$V1 & as.numeric(row['POS2']) >=  blacklist$V2 & as.numeric(row['POS2']) <=  blacklist$V3)
+        return( length(position1) != 0 | length(position2) != 0 )
+}
 
  #function to find out if event is translocation or High evidence other event
  otherSV<-function(df){
  	!(df$SVTYPE == "TRL")
  }
- 
+
  tra_otherSV_HIGH<-function(df){
    (df$SVTYPE == "TRL" | df$EVIDENCE_LEVEL == "HIGH")
  }

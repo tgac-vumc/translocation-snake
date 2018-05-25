@@ -45,6 +45,7 @@ orderWham<-function(inputfile, output1, output2){
 
 	#Create unique ID per hit
 	vcf$ID<-paste("wham",seq(1:nrow(vcf)), sep="-")
+	vcf<-as.data.frame(vcf)
 
 	if(length(grep("chr", vcf[1,"CHROM"]))== 0){
 	#add chromosome prefix

@@ -60,7 +60,8 @@ merge_SVs<-function(whamfile,gridssfile,novofile,breakmerfile, output, output2,o
 	df$GENE2[is.na(df$GENE2)]<-""
 
 	#remove blacklist
-	df<-df[Blacklist(df),]
+	in_blacklist<-apply(df ,1, Blacklist)
+        df<-df[!in_blacklist,]
 
 	#remove events not called twice (most often by two different tools)
 	df<-df[!is.na(df$CHROM),]
