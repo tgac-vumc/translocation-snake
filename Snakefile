@@ -185,6 +185,7 @@ rule run_breakmer:
     shell:
          "python2 {params.breakmer} run -c {input.config} ;"
          "cp ../breakmer/{wildcards.sample}/{wildcards.number}/output/{params.analysis_name}-{wildcards.number}_svs.out {output.out}"
+		 "rm -r ../breakmer/{sample}/{number}/targets"
 
 rule concat_breakmer:
 	input:
