@@ -18,17 +18,22 @@ sv_metrics<-snakemake@input[["sv_metrics"]]
 sample=snakemake@wildcards[["sample"]]
 output=snakemake@output[["combined"]]
 
-header_HSmetrics<-read.table(HSmetrics , skip=6, nrows=1, stringsAsFactors=F)
-metrics<-read.table(HSmetrics, skip=7, nrows=1, col.names=header_HSmetrics[1,1:53])
+#header_HSmetrics<-read.table(HSmetrics , skip=6, nrows=1, stringsAsFactors=F)
+#metrics<-read.table(HSmetrics, skip=7, nrows=1, col.names=header_HSmetrics[1,1:53])
+metrics<-read.delim(HSmetrics, skip=6, nrows=1, header=T)
 
 header_alignmetrics<-read.table(Alignment_met , skip=6, nrows=1, stringsAsFactors=F)
-alignmetrics<-read.table(Alignment_met, skip=9, nrows=1, col.names=header_alignmetrics[1,1:22])
+#alignmetrics<-read.table(Alignment_met, skip=9, nrows=1, col.names=header_alignmetrics[1,1:22])
+alignmetrics<-read.delim(Alignment_met, skip=8, nrows=1, col.names=header_alignmetrics)
 
-header_insertmetrics<-read.table(insert_size_metrics , skip=6, nrows=1, stringsAsFactors=F)
-insert_metrics<-read.table(insert_size_metrics, skip=7, nrows=1, col.names=header_insertmetrics[1,1:18])
+#header_insertmetrics<-read.table(insert_size_metrics , skip=6, nrows=1, stringsAsFactors=F)
+#insert_metrics<-read.table(insert_size_metrics, skip=7, nrows=1, col.names=header_insertmetrics[1,1:18])
+insert_metrics<-read.delim(insert_size_metrics, skip=6, nrows=1, header=T)
 
-header_svmetrics<-read.table(sv_metrics , skip=1, nrows=1, stringsAsFactors=F)
-svmetrics<-read.table(sv_metrics, skip=3, nrows=1, col.names=header_svmetrics[1,1:14])
+#header_svmetrics<-read.table(sv_metrics , skip=1, nrows=1, stringsAsFactors=F)
+#svmetrics<-read.table(sv_metrics, skip=3, nrows=1, col.names=header_svmetrics[1,1:14])
+svmetrics<-read.delim(sv_metrics, skip=2)
+
 
 all<-cbind(metrics,alignmetrics, insert_metrics, svmetrics)
 all$SAMPLE<-sample

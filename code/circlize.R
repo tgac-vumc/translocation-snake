@@ -17,6 +17,12 @@ circos.initializeWithIdeogram(plotType = c("labels", "ideogram"), track.height=c
 
 translocations<-read.delim(snakemake@input[["summary"]], stringsAsFactors = F, header = T)
 
+if(length(grep("GL",translocations$CHROM)) != 0 | length(grep("GL",translocations$CHROM2)) != 0){
+
+translocations<-translocations[!grepl("GL",translocations$CHROM),]
+translocations<-translocations[!grepl("GL",translocations$CHROM2),]
+}
+
 side_one<-translocations[translocations$TPorFP=="TP",c("CHROM","POS")]
 side_one[,3]<-side_one[,2]+1
 side_one[,4]<-translocations[translocations$TPorFP=="TP","GENE"]

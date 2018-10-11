@@ -26,7 +26,7 @@ rule run_gridss:
     params:
         GRIDSS_JAR=config['gridss']['GRIDSS_JAR'],
         DIR="../gridss/{sample}/",
-        ref=config['ALL']['REF_CHR'],
+        ref=config['ALL']['REF'],
         assembly="../gridss/{sample}/{sample}-gridss.assembly.bam"
     threads:config["ALL"]["THREADS"]
     shell:
@@ -60,14 +60,14 @@ rule reorder_gridss:
 
 rule run_wham:
     input:
-        bam="../bam/{sample}_coordsorted_nochr.bam"
+        bam="../bam/{sample}_coordsorted.bam"
     output:
         vcf="../wham/{sample}/{sample}-wham.vcf"
     log:
         "../wham/log/{sample}.log"
     params:
         WHAM=config['wham']['WHAM'],
-        ref=config['ALL']['REF_NOCHR'],
+        ref=config['ALL']['REF'],
         mapqual=config['wham']['MAPQUAL'],
         basequal=config['wham']['BASEQUAL']
     threads:
@@ -92,7 +92,7 @@ rule reorder_wham:
 
 rule run_novobreak:
     input:
-        bam="../bam/{sample}_coordsorted_nochr.bam"
+        bam="../bam/{sample}_coordsorted.bam"
     output:
         vcf="../novobreak/{sample}/{sample}-novobreak.vcf"
     log:
@@ -101,7 +101,7 @@ rule run_novobreak:
         NOVOBREAK=config['novobreak']['NOVOBREAK'],
         NORMAL=config['novobreak']['NORMAL'],
         EXE_DIR=config['novobreak']['EXE_DIR'],
-        REF=config["ALL"]["REF_NOCHR"],
+        REF=config["ALL"]["REF"],
         HEADER=config["novobreak"]["HEADER"]
     threads:
         config["ALL"]["THREADS"]
@@ -213,7 +213,7 @@ rule reorder_breakmer:
 rule merge_svtools:
     input:
         novobreak="../novobreak/{sample}/{sample}-novobreak_ordered.csv",
-        breakmer="../breakmer/{sample}/{sample}-breakmer_ordered.csv",
+        breakmer="../breakmer/{sample}/{sample}-breakmer_ordered.csv" if config["options"]["breakmer"] else "headers/empty_breakmer.csv",
         wham="../wham/{sample}/{sample}-wham_ordered.csv",
         gridss="../gridss/{sample}/{sample}-gridss_ordered.csv",
         script="code/merge-svtools-snake.R"

@@ -1,9 +1,13 @@
 ALL:
     THREADS: 4
-    REF_CHR: /net/nfs/PAT/home/tjitske/files/ref/incl_chr/hg19.fa
+    #REF: /net/nfs/PAT/home/tjitske/files/ref/GRch37/Homo_sapiens.GRCh37.69.dna_sm.primary_assembly.fa
+    REF: /net/nfs/PAT/home/tjitske/files/ref/incl_chr/hg19.fa
     REF_NOCHR: /net/nfs/PAT/home/tjitske/files/ref/excl_chr/hg19_refgen_exclchr.fa
     Annotationfile: code/annotation_new_BCNHL-v2.bed
-    targets: code/BCNHLv2_primary_coord.bed
+    targets: ../WES-snake/manifest/MedExome_hg19_primary_coord.bed
+
+options:
+    breakmer: False     #True
 
 filters:
     splitread: 4         #number of mininimal amount of split read evidence

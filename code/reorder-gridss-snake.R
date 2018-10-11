@@ -42,7 +42,6 @@ capture_targets<-get_ext_capture_targets(snakemake@params[["targets"]])
 
 orderGridss <- function(inputfile, output1, output2) {
 	vcf <- readVcf(inputfile, "hg19")
-
 	gr <- breakpointRanges(vcf)
 	svtype <- simpleEventType(gr)
 
@@ -52,6 +51,11 @@ orderGridss <- function(inputfile, output1, output2) {
 	info(vcf)$svlen <- NA_integer_
 	info(vcf[gr$vcfId])$svlen <- gr$svLen
 
+	#check if chr prefix is used, when not change seqlevels in gns without chr
+	# prefix otherwise this gives an error.
+	if(length(grep("chr", seqlevels(gr)))==0){
+	seqlevels(gns)<<-gsub(pattern="chr", replacement="", x=seqlevels(gns))
+	}
 	# annotate breakends with gene names
 	gr<-getGeneGr(gr)
 
@@ -74,9 +78,14 @@ orderGridss <- function(inputfile, output1, output2) {
 
 	df<-getPair(df)
 
-	#remove chrM - not expected to be real events.
+	#remove chrM (chrMT in case GRCh37 is used)- not expected to be real events.
 	df<-df[df$CHROM != "chrM" & df$CHROM2 != "chrM",]
+	df<-df[df$CHROM != "chrMT" & df$CHROM2 != "chrMT",]
 
+	# in case GRCh37 is used GL chromosomes are in the list which I don't want to analyse.
+	if(length(grep("GL", df[,"CHROM"])) != 0){
+	df<-df[-grep(pattern="GL", x=df$CHROM),]
+	}
 	#sort on QUAL
 	df<-arrange(df, desc(QUAL))
 
