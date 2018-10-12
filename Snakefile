@@ -183,9 +183,9 @@ rule run_breakmer:
          #analysis_name="{sample}"+config["breakmer"]["analysis_name"]
         analysis_name="{sample}_BCNHL_Seq_V2_allTRL"
     shell:
-         "python2 {params.breakmer} run -c {input.config} ;"
-         "cp ../breakmer/{wildcards.sample}/{wildcards.number}/output/{params.analysis_name}-{wildcards.number}_svs.out {output.out}"
-		 "rm -r ../breakmer/{sample}/{number}/targets"
+        "python2 {params.breakmer} run -c {input.config} ;"
+        "cp ../breakmer/{wildcards.sample}/{wildcards.number}/output/{params.analysis_name}-{wildcards.number}_svs.out {output.out} ;"
+        "rm -r ../breakmer/{wildcards.sample}/{wildcards.number}/targets"
 
 rule concat_breakmer:
 	input:
