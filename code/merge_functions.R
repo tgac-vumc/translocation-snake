@@ -36,7 +36,7 @@
         if(sum(!is.na(df$EVENT[same_event]))==0){
           event<-event+1
           df$EVENT[same_event]<-event
-        }else{df$EVENT[same_event]<-event}
+	  }else{df$EVENT[same_event]<-df$EVENT[same_event][1]}
       }
     }else{df$EVENT<-1}
   return(df$EVENT)

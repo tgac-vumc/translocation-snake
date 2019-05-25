@@ -9,13 +9,18 @@
 suppressMessages(library(Biobase))
 suppressMessages(library(circlize))
 
-png(snakemake@output[["circlize"]], width=7, height=7, unit="in", res=300)
+output<-snakemake@output[["circlize"]]
+input<-snakemake@input[["summary"]]
+
+png(output, width=7, height=7, unit="in", res=300)
+
+name<-gsub(pattern="_.*", x=basename(input), replacement="")
 
 circos.par("start.degree" = 90)
 par(cex=0.9)
 circos.initializeWithIdeogram(plotType = c("labels", "ideogram"), track.height=convert_height(2, "mm"))
 
-translocations<-read.delim(snakemake@input[["summary"]], stringsAsFactors = F, header = T)
+translocations<-read.delim(input, stringsAsFactors = F, header = T)
 
 if(length(grep("GL",translocations$CHROM)) != 0 | length(grep("GL",translocations$CHROM2)) != 0){
 
@@ -37,5 +42,6 @@ if(nrow(genes)!=0){
 circos.genomicLabels(genes, labels.column = 4, cex=0.7, side="outside",  connection_height =convert_height(1.5, "mm") , labels_height = min(c(convert_height(2.5, "cm"))))}
 
 if(nrow(side_one)!=0){circos.genomicLink(side_one, side_two)}
+title(name)
 
 dev.off()
