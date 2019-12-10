@@ -3,9 +3,9 @@ ALL:
     #REF: /net/nfs/PAT/home/tjitske/files/ref/GRch37/Homo_sapiens.GRCh37.69.dna_sm.primary_assembly.fa
     REF: /net/nfs/PAT/home/tjitske/files/ref/incl_chr/hg19.fa
     REF_NOCHR: /net/nfs/PAT/home/tjitske/files/ref/excl_chr/hg19_refgen_exclchr.fa
-    Annotationfile: code/annotation_new_BCNHL-v2.bed
+    Annotationfile: references/annotation_new_BCNHL-v2.bed
     #targets: ../WES-snake/manifest/MedExome_hg19_primary_coord.bed
-    targets: code/BCNHLv2_primary_coord.bed
+    targets: references/BCNHLv3_primary_coord.bed
 
 options:
     breakmer: True  #False or True
@@ -16,15 +16,15 @@ filters:
     novoscore: 4         #minimal novobreak QUAL score
     gridssscore: 450     #minimal gridss QUAL score
     highSVevidence: 7   #minimal amount of split reads and discordant reads required for structural variants to be called High evidence
-    blacklist: code/180307-blacklist.bed         #blacklist in bedfile format
+    blacklist: references/180307-blacklist.bed         #blacklist in bedfile format
 
 gridss:
     GRIDSS_JAR: /net/nfs/PAT/home/tjitske/GRIDSS/gridss-1.4.2-jar-with-dependencies.jar
 
 wham:
     WHAM: /net/nfs/PAT/home/tjitske/WHAM/wham/bin/wham
-    CLASSIFY: /net/nfs/PAT/home/tjitske/WHAM/wham/utils/classify_WHAM_vcf.py
-    TRAIN: /net/nfs/PAT/home/tjitske/WHAM/wham/data/WHAM_training_data.txt
+    #CLASSIFY: /net/nfs/PAT/home/tjitske/WHAM/wham/utils/classify_WHAM_vcf.py
+    #TRAIN: /net/nfs/PAT/home/tjitske/WHAM/wham/data/WHAM_training_data.txt
     MAPQUAL: 10
     BASEQUAL: 5
 
@@ -36,9 +36,9 @@ novobreak:
 
 breakmer:
     BREAKMER: /net/nfs/PAT/home/tjitske/BreaKmer/new_2016-05-26/BreaKmer-master/breakmer.py
-    targets_bed_file: code/BCNHL_Seq_V2_allTRL.bed
-    analysis_name: _BCNHL_Seq_V2_allTRL
-    reference_data_dir: /net/nfs/PAT/home/tjitske/BreaKmer/new_2016-05-26/BreaKmer-master/reference
+    targets_bed_file: references/BCNHL_Seq_V3_allTRL_5kb.bed
+    analysis_name: _BCNHL_Seq_V3_allTRL
+    reference_data_dir: /net/nfs/PAT/home/tjitske/BreaKmer/new_2016-05-26/BreaKmer-master/referenceV3
     cutadapt_config_file: /net/nfs/PAT/home/tjitske/BreaKmer/new_2016-05-26/BreaKmer-master/cutadapt.cfg
     cutadapt: /net/nfs/PAT/lib/cutadapt/cutadapt-1.1/bin/cutadapt
     jellyfish: /net/nfs/PAT/home/tjitske/Jellyfish/jellyfish-2.2.6/bin/jellyfish

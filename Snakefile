@@ -141,11 +141,11 @@ rule create_config_breakmer:
         targetfile="../breakmer/{sample}/targetregions-{number}"
    output:
         config="../breakmer/{sample}/{number}/{sample}-{number}.cfg"
-        #"../breakmer/Breakmer_output/{sample}_BCNHL_Seq_V2_allTRL_svs.out"
+        #"../breakmer/Breakmer_output/{sample}_BCNHL_Seq_V3_allTRL_svs.out"
    params:
         targets_bed="../breakmer/{sample}/targetregions-{number}",
         #analysis_name="{sample}"+config["breakmer"]["analysis_name"],
-        analysis_name="{sample}_BCNHL_Seq_V2_allTRL-{number}",
+        analysis_name="{sample}_BCNHL_Seq_V3_allTRL-{number}",
 	    refdir=config["breakmer"]["reference_data_dir"],
         cutadapt_config=config["breakmer"]["cutadapt_config_file"],
         cutadapt=config["breakmer"]["cutadapt"],
@@ -177,11 +177,11 @@ rule run_breakmer:
         config="../breakmer/{sample}/{number}/{sample}-{number}.cfg",
         targetfile="../breakmer/{sample}/targetregions-{number}",
     output:
-         out="../breakmer/Breakmer_output/{sample}_BCNHL_Seq_V2_allTRL-{number}_svs.out"
+         out="../breakmer/Breakmer_output/{sample}_BCNHL_Seq_V3_allTRL-{number}_svs.out"
     params:
         breakmer=config["breakmer"]["BREAKMER"],
          #analysis_name="{sample}"+config["breakmer"]["analysis_name"]
-        analysis_name="{sample}_BCNHL_Seq_V2_allTRL"
+        analysis_name="{sample}_BCNHL_Seq_V3_allTRL"
     shell:
         "python2 {params.breakmer} run -c {input.config} ;"
         "cp ../breakmer/{wildcards.sample}/{wildcards.number}/output/{params.analysis_name}-{wildcards.number}_svs.out {output.out} ;"
@@ -189,9 +189,9 @@ rule run_breakmer:
 
 rule concat_breakmer:
 	input:
-		expand("../breakmer/Breakmer_output/{{sample}}_BCNHL_Seq_V2_allTRL-{number}_svs.out", number=targetregionnumber)
+		expand("../breakmer/Breakmer_output/{{sample}}_BCNHL_Seq_V3_allTRL-{number}_svs.out", number=targetregionnumber)
 	output:
-		"../breakmer/Breakmer_output/{sample}_BCNHL_Seq_V2_allTRL_svs.out",
+		"../breakmer/Breakmer_output/{sample}_BCNHL_Seq_V3_allTRL_svs.out",
 	params:
 		header="code/breakmer_header.txt"
 	shell:
@@ -200,7 +200,7 @@ rule concat_breakmer:
 
 rule reorder_breakmer:
     input:
-        "../breakmer/Breakmer_output/{sample}_BCNHL_Seq_V2_allTRL_svs.out",
+        "../breakmer/Breakmer_output/{sample}_BCNHL_Seq_V3_allTRL_svs.out",
         script="code/reorder-breakmer004-snake.R"
     output:
         dups="../breakmer/{sample}/{sample}-breakmer_dups.csv",
