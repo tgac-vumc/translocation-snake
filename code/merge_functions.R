@@ -130,6 +130,7 @@ Blacklist<- function(row){
     df$ALL_TOOLS[df$EVENT==i]<-paste(unique(df[df$EVENT==i,"TOOL"]),collapse=",")
     df$OCCURENCE[df$EVENT==i]<-sum(df$EVENT==i)
   }
- 	if(nrow(df)>0){df$TPorFP<-"TP"}else{df$TPorFP<-character()} #this column is used to exclude rows from circlize plot if they are marked as FP
+ 	if(nrow(df)>0){df$TPorFP<-"TP"
+	df$TPorFP[df$In_Blacklist=="Yes"]<-"Blacklisted"}else{df$TPorFP<-character()} #this column is used to exclude rows from circlize plot if they are marked as FP
  	summarydf<-df[!duplicated(df$EVENT),]
  }
